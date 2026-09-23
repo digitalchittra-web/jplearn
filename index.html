@@ -302,6 +302,24 @@
   .btn-row{ display: flex; gap: 0.6rem; width: 100%; margin-bottom: 1rem; }
   .btn-row .btn{ flex: 1; margin-bottom: 0; }
 
+  .swipe-stack{ width: 100%; max-width: 19rem; height: 15.5rem; perspective: 1400px; margin: 0.5rem 0 1.25rem; }
+  .swipe-card{ width: 100%; height: 100%; cursor: pointer; touch-action: pan-y; }
+  .swipe-card-inner{
+    position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
+    transition: transform 0.45s cubic-bezier(.22,1,.36,1);
+  }
+  .swipe-card.flipped .swipe-card-inner{ transform: rotateY(180deg); }
+  .swipe-card-face{
+    position: absolute; inset: 0; backface-visibility: hidden; border-radius: 22px;
+    background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 1.5rem;
+  }
+  .swipe-card-face.back{ transform: rotateY(180deg); }
+  .swipe-hint{ margin-top: 1rem; font-size: 0.72rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  @media (min-width: 880px){ .mobile-only{ display: none !important; } }
+
   .summary{ text-align: center; padding-top: 3rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
   .summary .xp-earned{ font-size: 2.4rem; font-weight: 800; color: var(--gold); }
 
@@ -486,6 +504,7 @@
   var sessionState = null;
   var talkState = null;
   var traceState = null;
+  var swipeState = null;
 
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -666,16 +685,27 @@
 
   var VOCAB_BATCH = 8;
   function buildCurriculum(){
-    var nodes = [];
+    var hira = [], kata = [], vocab = [];
     for(var i=0;i<HIRAGANA.length;i+=NEW_KANA_BATCH){
-      nodes.push({type:"kana", set:"hiragana", start:i, end:Math.min(i+NEW_KANA_BATCH,HIRAGANA.length), label:"Hiragana "+(Math.floor(i/NEW_KANA_BATCH)+1)});
+      hira.push({type:"kana", set:"hiragana", start:i, end:Math.min(i+NEW_KANA_BATCH,HIRAGANA.length), label:"Hiragana "+(Math.floor(i/NEW_KANA_BATCH)+1)});
     }
     for(var j=0;j<KATAKANA.length;j+=NEW_KANA_BATCH){
-      nodes.push({type:"kana", set:"katakana", start:j, end:Math.min(j+NEW_KANA_BATCH,KATAKANA.length), label:"Katakana "+(Math.floor(j/NEW_KANA_BATCH)+1)});
+      kata.push({type:"kana", set:"katakana", start:j, end:Math.min(j+NEW_KANA_BATCH,KATAKANA.length), label:"Katakana "+(Math.floor(j/NEW_KANA_BATCH)+1)});
     }
     for(var k=0;k<VOCAB.length;k+=VOCAB_BATCH){
-      nodes.push({type:"vocab", start:k, end:Math.min(k+VOCAB_BATCH,VOCAB.length), label:"Words "+(Math.floor(k/VOCAB_BATCH)+1)});
+      vocab.push({type:"vocab", start:k, end:Math.min(k+VOCAB_BATCH,VOCAB.length), label:"Words "+(Math.floor(k/VOCAB_BATCH)+1)});
     }
+    // Interleave so real words with meanings show up early and often,
+    // instead of gating every word behind a full kana syllabary first.
+    var kana = hira.concat(kata);
+    var nodes = [];
+    if(vocab.length) nodes.push(vocab.shift());
+    var sinceVocab = 0;
+    while(kana.length || vocab.length){
+      if(kana.length){ nodes.push(kana.shift()); sinceVocab++; }
+      if(vocab.length && sinceVocab>=3){ nodes.push(vocab.shift()); sinceVocab=0; }
+    }
+    while(vocab.length) nodes.push(vocab.shift());
     return nodes;
   }
   var CURRICULUM = buildCurriculum();
@@ -844,6 +874,107 @@
     };
   }
 
+  function startSwipe(){
+    var due = vocabDueList();
+    var src = due.length ? due : VOCAB;
+    var queue = pick(src, Math.min(10, src.length));
+    swipeState = queue.length ? { queue:queue, idx:0, correct:0, startXp:S.xp, flipped:false } : { empty:true };
+    view = "swipe";
+    render();
+  }
+
+  function renderSwipe(){
+    var s = swipeState;
+    if(!s || s.empty){
+      return '<div class="summary">'+mascotSvg(72)+'<h2>All caught up!</h2><p class="mission-sub">No words due for review right now.</p>'+
+        '<button class="btn btn-primary" data-nav="learn">Back to Learn</button></div>';
+    }
+    var item = s.queue[s.idx];
+    var pct = Math.round((s.idx/s.queue.length)*100);
+    return '<div class="session">'+
+      '<button class="session-exit" data-nav="home">✕ Exit</button>'+
+      '<div class="session-progress" style="width:100%"><div style="width:'+pct+'%"></div></div>'+
+      mascotSvg(40)+
+      '<div class="swipe-stack"><div class="swipe-card" id="swipeCard">'+
+        '<div class="swipe-card-inner" id="swipeCardInner">'+
+          '<div class="swipe-card-face front">'+
+            '<div class="jp" style="font-size:2.6rem;font-weight:800">'+esc(item.jp)+'</div>'+
+            '<div class="mission-sub">'+esc(item.romaji)+'</div>'+
+            '<div class="swipe-hint">Tap to reveal meaning</div>'+
+          '</div>'+
+          '<div class="swipe-card-face back">'+
+            '<div class="jp" style="font-size:1.2rem;color:var(--ink-soft)">'+esc(item.jp)+'</div>'+
+            '<div style="font-size:1.7rem;font-weight:800;margin-top:0.6rem">'+esc(item.en)+'</div>'+
+            '<div class="swipe-hint">Swipe or choose below</div>'+
+          '</div>'+
+        '</div>'+
+      '</div></div>'+
+      '<div class="btn-row" style="width:100%;max-width:19rem">'+
+        '<button class="btn btn-ghost" id="swipeNo" type="button">✗ Still learning</button>'+
+        '<button class="btn btn-primary" id="swipeYes" type="button">✓ Got it</button>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function swipeAfterRender(){
+    var s = swipeState;
+    var card = document.getElementById("swipeCard");
+    if(!s || s.empty || !card) return;
+
+    function setFlip(v){ s.flipped = v; card.classList.toggle("flipped", v); }
+    card.onclick = function(){ if(!s.flipped) setFlip(true); };
+
+    var startX = 0, dx = 0, dragging = false;
+    function down(ev){
+      if(!s.flipped) return;
+      dragging = true; startX = ev.clientX; dx = 0;
+      card.style.transition = "none";
+      if(card.setPointerCapture){ try{ card.setPointerCapture(ev.pointerId); }catch(e){} }
+    }
+    function move(ev){
+      if(!dragging) return;
+      dx = ev.clientX - startX;
+      card.style.transform = "translateX("+dx+"px) rotate("+(dx/18)+"deg)";
+    }
+    function up(){
+      if(!dragging) return;
+      dragging = false;
+      card.style.transition = "";
+      if(Math.abs(dx) > 90) commit(dx>0);
+      else card.style.transform = "";
+    }
+    card.onpointerdown = down;
+    card.onpointermove = move;
+    card.onpointerup = up;
+    card.onpointercancel = up;
+
+    function commit(good){
+      var item = s.queue[s.idx];
+      recordAnswer("vocab", item.id, good);
+      if(good) s.correct++;
+      chime(good);
+      haptic(good ? 15 : [12,40,12]);
+      card.style.transform = "translateX("+(good?620:-620)+"px) rotate("+(good?28:-28)+"deg)";
+      card.style.opacity = "0";
+      setTimeout(function(){
+        s.idx++;
+        if(s.idx >= s.queue.length){
+          view = "summary";
+          sessionState = { mode:"swipe", queue:s.queue, correct:s.correct, startXp:s.startXp, label:"Vocabulary" };
+          swipeState = null;
+          render();
+          if(!reduceMotion) confetti();
+          return;
+        }
+        s.flipped = false;
+        render();
+      }, 220);
+    }
+
+    document.getElementById("swipeYes").onclick = function(){ if(s.flipped) commit(true); else setFlip(true); };
+    document.getElementById("swipeNo").onclick = function(){ if(s.flipped) commit(false); else setFlip(true); };
+  }
+
   function answerChoice(choiceIdx){
     var s = sessionState;
     if(!s || s.answered) return;
@@ -905,7 +1036,7 @@
 
   // ---------------- render ----------------
 
-  function setView(v){ view = v; sessionState=null; traceState=null; render(); }
+  function setView(v){ view = v; sessionState=null; traceState=null; swipeState=null; render(); }
 
   function render(){
     var root = document.getElementById("app");
@@ -917,6 +1048,7 @@
     else if(view==="session") html = renderSession();
     else if(view==="summary") html = renderSummary();
     else if(view==="trace") html = renderTrace();
+    else if(view==="swipe") html = renderSwipe();
     root.innerHTML = html;
     root.classList.remove("view-fade");
     void root.offsetWidth;
@@ -925,6 +1057,7 @@
     attachHandlers();
     if(view==="talk") talkAfterRender();
     if(view==="trace") traceAfterRender();
+    if(view==="swipe") swipeAfterRender();
   }
 
   function renderTabbar(){
@@ -936,7 +1069,7 @@
       {id:"progress", ic:"📊", lbl:"Stats"}
     ];
     bar.innerHTML = tabs.map(function(t){
-      var active = (view===t.id) || ((view==="session"||view==="summary"||view==="trace") && t.id==="learn");
+      var active = (view===t.id) || ((view==="session"||view==="summary"||view==="trace"||view==="swipe") && t.id==="learn");
       return '<button class="navbtn'+(active?" active":"")+'" data-nav="'+t.id+'"><span class="ic">'+t.ic+"</span>"+t.lbl+"</button>";
     }).join("");
   }
@@ -1017,7 +1150,7 @@
       '<button class="btn btn-primary btn-block" data-action="start-lazy" style="margin-top:0.5rem">⚡ Lazy Mode — 5 quick cards</button>'+
       '<div class="quick-grid">'+
         '<div class="quick-tile" data-nav="learn" data-learntab="hiragana"><span class="n">'+st.masteredKana+'/92</span><span class="l">Kana</span></div>'+
-        '<div class="quick-tile" data-nav="learn" data-learntab="vocab"><span class="n">'+st.masteredVocab+'/'+VOCAB.length+'</span><span class="l">Words</span></div>'+
+        '<div class="quick-tile" data-action="swipe-vocab"><span class="n">'+st.masteredVocab+'/'+VOCAB.length+'</span><span class="l">Words</span></div>'+
         '<div class="quick-tile" data-nav="talk"><span class="n">💬</span><span class="l">Talk</span></div>'+
       '</div>'+
       renderRegions()+
@@ -1087,7 +1220,10 @@
 
     var vocabSection = '<div class="learn-section'+(learnTab==="vocab"?" active":"")+'" data-sec="vocab">'+
       '<h3 class="learn-heading">Vocabulary</h3>'+
-      '<button class="btn btn-primary btn-block" data-action="practice-vocab" style="margin-bottom:1rem">Practice Vocab</button>'+
+      '<div class="btn-row">'+
+        '<button class="btn btn-primary" data-action="practice-vocab">Practice Vocab</button>'+
+        '<button class="btn btn-ghost mobile-only" data-action="swipe-vocab">👆 Swipe Cards</button>'+
+      '</div>'+
       '<div class="vlist">'+VOCAB.map(function(v){
         var e = S.vocab[v.id];
         var cls = isMastered(e) ? "mastered" : (isDue(e) ? "due" : "");
@@ -1350,6 +1486,7 @@
     if(el.dataset.action==="practice-vocab"){ startSession("vocab", 10, "Vocabulary"); return; }
     if(el.dataset.action==="trace-hiragana"){ startTrace("hiragana"); return; }
     if(el.dataset.action==="trace-katakana"){ startTrace("katakana"); return; }
+    if(el.dataset.action==="swipe-vocab"){ startSwipe(); return; }
     if(el.dataset.nav){ setView(el.dataset.nav); return; }
   }
 
