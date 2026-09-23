@@ -82,6 +82,19 @@
   .mission-card{ box-shadow: var(--shadow-md); }
 
   #app{ max-width: 30rem; margin: 0 auto; padding: 0 1rem; }
+  #app.view-fade{ animation: viewIn 0.32s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes viewIn{ from{ opacity: 0; transform: translateY(10px); } to{ opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce){ #app.view-fade{ animation: none; } }
+
+  @keyframes idleBreathe{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.045); } }
+  .mascot{ animation: idleBreathe 3.4s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce){ .mascot{ animation: none; } }
+
+  .btn:active, .quick-tile:active, .ktile:active, .vrow:active, .path-node:not(.locked):active,
+  .persona-card:active, .choice:not([disabled]):active, .navbtn:active, .region-card:not(.locked):active,
+  .due-table .go:active{
+    transform: scale(0.95);
+  }
 
   /* -------- top bar -------- */
   .topbar{
@@ -190,6 +203,33 @@
   .due-table tr:last-child td{ border-bottom: none; }
   .due-table .cnt{ font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
   .due-table .go{ background: var(--surface-alt); border: 1px solid var(--line); border-radius: 999px; padding: 0.4rem 0.85rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; color: var(--ink); }
+
+  .region-scroll{
+    display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 0.15rem 1rem 0.6rem; margin: 0 -1rem 0.5rem; -webkit-overflow-scrolling: touch;
+  }
+  .region-card{
+    position: relative; flex: 0 0 9.75rem; height: 12.5rem; border-radius: 22px; overflow: hidden;
+    scroll-snap-align: start; color: #fff; box-shadow: var(--shadow-md); cursor: pointer;
+  }
+  .region-card.locked{ cursor: default; filter: saturate(0.45) brightness(0.82); }
+  .region-mountain{
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 78%; height: 52%; background: rgba(255,255,255,0.22);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+  .region-mountain::after{
+    content: ""; position: absolute; top: 22%; left: 50%; width: 0.9rem; height: 0.9rem;
+    transform: translateX(-50%); border-radius: 50%; background: rgba(255,255,255,0.5);
+  }
+  .region-lock{ position: absolute; top: 0.7rem; right: 0.7rem; font-size: 1rem; }
+  .region-info{
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 0.85rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.5), transparent 80%);
+  }
+  .region-name{ font-weight: 800; font-size: 1.05rem; }
+  .region-theme{ font-size: 0.7rem; opacity: 0.92; margin-top: 0.2rem; line-height: 1.35; }
+  .region-badge{ font-size: 0.66rem; font-weight: 700; margin-top: 0.5rem; opacity: 0.95; letter-spacing: 0.02em; }
 
   /* -------- tabs -------- */
   .tabs{ display: flex; gap: 0.4rem; margin: 1.1rem 0 1rem; overflow-x: auto; }
@@ -426,6 +466,14 @@
      style:"relaxed and casual, talks about hobbies, weekend plans, food, and school or work"}
   ];
 
+  var REGIONS = [
+    {name:"Tokyo", theme:"Survival Japanese, greetings & numbers", grad:"linear-gradient(160deg, var(--accent), var(--gold))", req:1},
+    {name:"Yokohama", theme:"Shopping & asking directions", grad:"linear-gradient(160deg, var(--indigo), var(--jade))", req:3},
+    {name:"Osaka", theme:"Casual speech, humor & reactions", grad:"linear-gradient(160deg, var(--gold), var(--jade))", req:5},
+    {name:"Kyoto", theme:"Politeness, culture & longer talk", grad:"linear-gradient(160deg, var(--jade), var(--indigo))", req:8},
+    {name:"Sapporo", theme:"Fast speech, slang & immersion", grad:"linear-gradient(160deg, var(--accent), var(--indigo))", req:12}
+  ];
+
   var INTERVAL_DAYS = [0,1,2,4,8,16];
   var NEW_KANA_BATCH = 5;
 
@@ -516,7 +564,13 @@
     if(!el || reduceMotion) return;
     el.classList.remove("bounce","shake");
     void el.offsetWidth;
-    el.classList.add(good?"bounce":"shake");
+    var cls = good?"bounce":"shake";
+    el.classList.add(cls);
+    setTimeout(function(){ el.classList.remove(cls); }, good?520:420);
+  }
+
+  function haptic(pattern){
+    try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){}
   }
 
   function confetti(){
@@ -864,6 +918,9 @@
     else if(view==="summary") html = renderSummary();
     else if(view==="trace") html = renderTrace();
     root.innerHTML = html;
+    root.classList.remove("view-fade");
+    void root.offsetWidth;
+    root.classList.add("view-fade");
     renderTabbar();
     attachHandlers();
     if(view==="talk") talkAfterRender();
@@ -886,23 +943,58 @@
 
   function renderPath(){
     var nodes = CURRICULUM;
-    var currentAssigned = false;
-    var rows = nodes.map(function(n, i){
-      var st;
-      if(!nodeUnlocked(nodes, i)) st = "locked";
-      else if(nodeDone(n)) st = "done";
-      else if(!currentAssigned){ st = "current"; currentAssigned = true; }
-      else st = "available";
+    var states = nodes.map(function(n, i){
+      if(!nodeUnlocked(nodes, i)) return "locked";
+      if(nodeDone(n)) return "done";
+      return "open";
+    });
+    var currentIdx = states.indexOf("open");
+    if(currentIdx===-1) currentIdx = nodes.length-1;
+    var startIdx = Math.max(0, currentIdx-1);
+    var endIdx = Math.min(nodes.length, currentIdx+4);
+    var hiddenBefore = startIdx;
+    var hiddenAfter = nodes.length - endIdx;
+
+    var rows = "";
+    if(hiddenBefore>0){
+      rows += '<div class="path-node-row odd"><div class="path-node done" style="width:2.6rem;height:2.6rem;font-size:1rem;opacity:0.6">✓</div>'+
+        '<div class="path-node-label">'+hiddenBefore+' lesson'+(hiddenBefore===1?"":"s")+' completed</div></div>';
+    }
+    for(var i=startIdx;i<endIdx;i++){
+      var n = nodes[i];
+      var st = states[i];
+      if(st==="open"){ st = (i===currentIdx) ? "current" : "available"; }
       var icon = n.type==="kana" ? esc(nodeRaw(n)[0][0]) : "語";
       var rowCls = i%2===0 ? "odd" : "even";
       var clickable = st!=="locked";
       var inner = st==="done" ? "✓" : st==="locked" ? "🔒" : '<span class="jp">'+icon+"</span>";
-      return '<div class="path-node-row '+rowCls+'">'+
+      rows += '<div class="path-node-row '+rowCls+'">'+
           '<button class="path-node '+st+'" '+(clickable?'data-chunk="'+i+'"':'')+'>'+inner+'</button>'+
           '<div class="path-node-label">'+esc(n.label)+(st==="current"?' <strong style="color:var(--accent)">· start here</strong>':'')+'</div>'+
         '</div>';
-    }).join("");
+    }
+    if(hiddenAfter>0){
+      rows += '<div class="path-node-row even"><div class="path-node locked" style="width:2.6rem;height:2.6rem;font-size:0.85rem">+'+hiddenAfter+'</div>'+
+        '<div class="path-node-label">more lessons ahead</div></div>';
+    }
     return '<div class="path-wrap"><div class="path-line"></div><div class="path-nodes">'+rows+'</div></div>';
+  }
+
+  function renderRegions(){
+    var lv = level();
+    var cards = REGIONS.map(function(r){
+      var unlocked = lv >= r.req;
+      return '<div class="region-card'+(unlocked?"":" locked")+'" style="background:'+r.grad+'" '+(unlocked?'data-nav="learn"':'')+'>'+
+        '<div class="region-mountain"></div>'+
+        (unlocked?'':'<div class="region-lock">🔒</div>')+
+        '<div class="region-info">'+
+          '<div class="region-name">'+esc(r.name)+'</div>'+
+          '<div class="region-theme">'+esc(r.theme)+'</div>'+
+          '<div class="region-badge">'+(unlocked?"Explore →":"Unlocks at Lv"+r.req)+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join("");
+    return '<div class="section-label">Discover Japan</div><div class="region-scroll">'+cards+'</div>';
   }
 
   function homeStats(){
@@ -928,6 +1020,7 @@
         '<div class="quick-tile" data-nav="learn" data-learntab="vocab"><span class="n">'+st.masteredVocab+'/'+VOCAB.length+'</span><span class="l">Words</span></div>'+
         '<div class="quick-tile" data-nav="talk"><span class="n">💬</span><span class="l">Talk</span></div>'+
       '</div>'+
+      renderRegions()+
       '</div>';
 
     var due = [
@@ -1052,6 +1145,7 @@
     });
     reactMascot(document.querySelector(".session .mascot"), good);
     chime(good);
+    haptic(good ? 15 : [12,40,12]);
   }
 
   function renderSummary(){
