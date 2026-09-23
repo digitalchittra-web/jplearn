@@ -18,6 +18,7 @@
     --line-strong: #e3d6b8;
     --shadow-sm: 0 1px 2px rgba(60,42,10,0.05), 0 10px 24px -16px rgba(60,42,10,0.22);
     --shadow-md: 0 2px 4px rgba(60,42,10,0.06), 0 16px 36px -18px rgba(60,42,10,0.28);
+    --shadow-lg: 0 4px 8px rgba(60,42,10,0.08), 0 28px 60px -24px rgba(60,42,10,0.35);
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -38,6 +39,7 @@
       --line-strong: #4f4430;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -16px rgba(0,0,0,0.5);
       --shadow-md: 0 2px 4px rgba(0,0,0,0.32), 0 16px 36px -18px rgba(0,0,0,0.55);
+      --shadow-lg: 0 4px 8px rgba(0,0,0,0.35), 0 28px 60px -24px rgba(0,0,0,0.6);
     }
   }
   :root[data-theme="dark"]{
@@ -58,381 +60,540 @@
     --line-strong: #4f4430;
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -16px rgba(0,0,0,0.5);
     --shadow-md: 0 2px 4px rgba(0,0,0,0.32), 0 16px 36px -18px rgba(0,0,0,0.55);
+    --shadow-lg: 0 4px 8px rgba(0,0,0,0.35), 0 28px 60px -24px rgba(0,0,0,0.6);
   }
 
   *{ box-sizing: border-box; }
+  html{ -webkit-text-size-adjust: 100%; }
   body{
     margin: 0;
     background: var(--bg);
     color: var(--ink);
     font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.5;
-    padding-bottom: 5rem;
+    font-size: 17px;
+    line-height: 1.45;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
   }
-  h1,h2,h3{ font-family: "Segoe UI Semibold", "Segoe UI", system-ui, -apple-system, sans-serif; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+  h1,h2,h3{ font-family: inherit; text-wrap: balance; margin: 0; letter-spacing: -0.02em; font-weight: 800; }
   .jp{ font-family: "Yu Gothic", "Hiragino Sans", "Noto Sans JP", "MS Gothic", sans-serif; }
-  button{ font-family: inherit; }
-  a{ color: var(--accent); }
-  :focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+  button{ font-family: inherit; color: inherit; }
+  :focus-visible{ outline: 3px solid var(--accent); outline-offset: 2px; }
 
-  .card, .quick-tile, .dash-card, .due-table, .stat-box, .ktile, .vrow,
-  .persona-card, .chat-input, .choice, .stat-pill, .bubble.them{
-    box-shadow: var(--shadow-sm);
-  }
-  .mission-card{ box-shadow: var(--shadow-md); }
-
-  #app{ max-width: 30rem; margin: 0 auto; padding: 0 1rem; }
-  #app.view-fade{ animation: viewIn 0.32s cubic-bezier(.22,1,.36,1) both; }
-  @keyframes viewIn{ from{ opacity: 0; transform: translateY(10px); } to{ opacity: 1; transform: translateY(0); } }
-  @media (prefers-reduced-motion: reduce){ #app.view-fade{ animation: none; } }
+  #app{ max-width: 34rem; margin: 0 auto; padding: 0 1rem; }
+  #app.view-fade{ animation: viewIn 0.28s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes viewIn{ from{ opacity:0; transform: translateY(8px); } to{ opacity:1; transform:none; } }
 
   @keyframes idleBreathe{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.045); } }
-  .mascot{ animation: idleBreathe 3.4s ease-in-out infinite; }
-  @media (prefers-reduced-motion: reduce){ .mascot{ animation: none; } }
-
-  .btn:active, .quick-tile:active, .ktile:active, .vrow:active, .path-node:not(.locked):active,
-  .persona-card:active, .choice:not([disabled]):active, .navbtn:active, .region-card:not(.locked):active,
-  .due-table .go:active{
-    transform: scale(0.95);
-  }
-
-  /* -------- top bar -------- */
-  .topbar{
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1rem 0 0.75rem;
-    max-width: 30rem; margin: 0 auto; padding-left: 1rem; padding-right: 3.85rem;
-  }
-  .brand{ display: flex; align-items: center; gap: 0.6rem; }
-  .brand h1{ font-size: 1.25rem; }
-  .stat-pill{
-    display: flex; align-items: center; gap: 0.35rem;
-    background: var(--surface); border: 1px solid var(--line);
-    padding: 0.35rem 0.65rem; border-radius: 999px;
-    font-size: 0.8125rem; font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
-  .stats-row{ display: flex; gap: 0.5rem; }
-  .pill-flame{ color: var(--accent); }
-  .pill-xp{ color: var(--gold); }
-
-  /* -------- mascot -------- */
-  .mascot{ flex-shrink: 0; transition: transform 0.35s cubic-bezier(.34,1.56,.64,1); }
+  .mascot{ animation: idleBreathe 3.4s ease-in-out infinite; flex-shrink: 0; }
   .mascot.bounce{ animation: bounce 0.5s cubic-bezier(.34,1.56,.64,1); }
   .mascot.shake{ animation: shake 0.4s ease; }
-  @keyframes bounce{ 0%{transform:scale(1)} 40%{transform:scale(1.18) rotate(-4deg)} 100%{transform:scale(1)} }
-  @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px) rotate(-3deg)} 75%{transform:translateX(6px) rotate(3deg)} }
-  @media (prefers-reduced-motion: reduce){ .mascot, .mascot.bounce, .mascot.shake{ animation: none !important; transition: none !important; } }
+  @keyframes bounce{ 0%{transform:scale(1)} 40%{transform:scale(1.2) rotate(-5deg)} 100%{transform:scale(1)} }
+  @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px) rotate(-3deg)} 75%{transform:translateX(7px) rotate(3deg)} }
+  @media (prefers-reduced-motion: reduce){
+    .mascot, .mascot.bounce, .mascot.shake, #app.view-fade{ animation: none !important; }
+  }
 
-  /* -------- cards / sections -------- */
-  .card{
+  /* ---------- app header ---------- */
+  .appbar{
+    position: sticky; top: 0; z-index: 30;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid var(--line);
+    padding-top: env(safe-area-inset-top);
+  }
+  .appbar-inner{
+    max-width: 34rem; margin: 0 auto;
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1rem;
+  }
+  .appbar .title{ font-size: 1.05rem; font-weight: 800; margin-right: auto; }
+  .chip{
+    display: inline-flex; align-items: center; gap: 0.3rem;
     background: var(--surface); border: 1px solid var(--line);
-    border-radius: 18px; padding: 1.25rem;
+    border-radius: 999px; padding: 0.35rem 0.7rem;
+    font-size: 0.85rem; font-weight: 800; font-variant-numeric: tabular-nums;
+    box-shadow: var(--shadow-sm);
   }
+  .chip.flame{ color: var(--accent); }
+  .chip.gem{ color: var(--gold); }
+  .icon-btn{
+    width: 2.4rem; height: 2.4rem; border-radius: 50%;
+    border: 1px solid var(--line); background: var(--surface);
+    font-size: 1.05rem; cursor: pointer; display: grid; place-items: center;
+    box-shadow: var(--shadow-sm); flex-shrink: 0;
+  }
+
   .section-label{
-    font-size: 0.6875rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--ink-soft); font-weight: 700; margin: 1.75rem 0 0.6rem;
+    font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 800; margin: 1.6rem 0 0.7rem;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  .mission-card{
-    background: linear-gradient(155deg, var(--accent-soft), transparent 60%), var(--surface);
-    border: 1px solid var(--line); border-radius: 20px; padding: 1.4rem;
+  .section-label .tag{
+    font-size: 0.6rem; letter-spacing: 0.06em; background: var(--surface-alt);
+    border: 1px solid var(--line); border-radius: 999px; padding: 0.15rem 0.5rem; color: var(--ink-soft);
+  }
+
+  /* ---------- buttons ---------- */
+  .btn{
+    border: none; border-radius: 16px; padding: 0 1.2rem;
+    min-height: 3.25rem; font-weight: 800; font-size: 1rem; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
+  }
+  .btn-primary{ background: var(--accent); color: #fff; box-shadow: 0 4px 0 color-mix(in srgb, var(--accent) 62%, #000); }
+  .btn-primary:active{ box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 62%, #000); transform: translateY(3px); }
+  .btn-ghost{ background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); box-shadow: var(--shadow-sm); }
+  .btn-block{ width: 100%; }
+  .btn-row{ display: flex; gap: 0.6rem; width: 100%; margin-bottom: 1rem; }
+  .btn-row .btn{ flex: 1; }
+
+  /* ---------- hero continue ---------- */
+  .hero{
+    position: relative; overflow: hidden;
+    border-radius: 26px; padding: 1.35rem;
+    background: linear-gradient(150deg, var(--accent), var(--gold));
+    color: #fff; box-shadow: var(--shadow-lg);
     display: flex; flex-direction: column; gap: 0.9rem;
   }
-  .mission-title{ font-size: 1.1rem; font-weight: 700; }
-  .mission-sub{ color: var(--ink-soft); font-size: 0.9rem; }
-  .btn{
-    border: none; border-radius: 999px; padding: 0.8rem 1.3rem;
-    font-weight: 700; font-size: 0.95rem; cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  .hero::after{
+    content:""; position: absolute; right: -2.5rem; top: -2.5rem;
+    width: 11rem; height: 11rem; border-radius: 50%;
+    background: rgba(255,255,255,0.14);
   }
-  .btn-primary{ background: var(--accent); color: #fff; }
-  .btn-ghost{ background: var(--surface-alt); color: var(--ink); border: 1px solid var(--line); }
-  .btn-block{ width: 100%; }
-  .btn:active{ transform: scale(0.98); }
+  .hero-eyebrow{ font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 800; opacity: 0.92; }
+  .hero-title{ font-size: 1.5rem; font-weight: 800; line-height: 1.15; }
+  .hero-sub{ font-size: 0.9rem; opacity: 0.95; }
+  .hero-bar{ height: 8px; border-radius: 999px; background: rgba(255,255,255,0.3); overflow: hidden; }
+  .hero-bar > div{ height: 100%; background: #fff; border-radius: 999px; transition: width .4s ease; }
+  .hero .btn{ background: #fff; color: var(--accent); box-shadow: 0 4px 0 rgba(0,0,0,0.13); position: relative; z-index: 1; }
+  .hero .btn:active{ box-shadow: 0 1px 0 rgba(0,0,0,0.13); transform: translateY(3px); }
 
-  .quick-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; margin-top: 1rem; }
-  .quick-tile{
-    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
-    padding: 0.85rem 0.5rem; text-align: center; cursor: pointer; color: var(--ink);
+  /* ---------- phrase card ---------- */
+  .phrase-card{
+    background: var(--surface); border: 1px solid var(--line); border-radius: 22px;
+    padding: 1.15rem; box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column; gap: 0.35rem;
   }
-  .quick-tile .n{ font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; display:block; }
-  .quick-tile .l{ font-size: 0.7rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
-
-  .banner{
-    margin-top: 1.25rem; padding: 0.9rem 1rem; border-radius: 14px;
-    background: var(--jade-soft); border: 1px solid var(--jade); color: var(--ink);
-    font-size: 0.875rem;
+  .phrase-top{ display: flex; align-items: flex-start; gap: 0.75rem; }
+  .phrase-jp{ font-size: 1.7rem; font-weight: 800; line-height: 1.25; flex: 1; }
+  .phrase-romaji{ color: var(--ink-soft); font-size: 0.9rem; }
+  .phrase-en{ font-weight: 700; margin-top: 0.3rem; }
+  .phrase-when{
+    margin-top: 0.6rem; font-size: 0.8rem; color: var(--ink-soft);
+    background: var(--surface-alt); border-radius: 12px; padding: 0.5rem 0.7rem;
+  }
+  .speak-btn{
+    border: 1px solid var(--line); background: var(--surface-alt); border-radius: 50%;
+    width: 2.9rem; height: 2.9rem; min-width: 2.9rem; cursor: pointer; font-size: 1.15rem;
+    display: grid; place-items: center; box-shadow: var(--shadow-sm);
   }
 
-  /* -------- home mobile / desktop split -------- */
-  .home-desktop{ display: none; }
-  .home-mobile{ display: block; }
+  /* ---------- action chips ---------- */
+  .action-row{
+    display: flex; gap: 0.6rem; overflow-x: auto; padding: 0.25rem 1rem 0.5rem;
+    margin: 0 -1rem; scrollbar-width: none;
+  }
+  .action-row::-webkit-scrollbar{ display: none; }
+  .action{
+    flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem;
+    min-width: 5.4rem; min-height: 5.4rem; padding: 0.7rem 0.6rem;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+    box-shadow: var(--shadow-sm); cursor: pointer; font-weight: 800; font-size: 0.75rem;
+  }
+  .action .ic{ font-size: 1.5rem; }
+  .action .sub{ font-size: 0.65rem; color: var(--ink-soft); font-weight: 600; }
 
-  .path-wrap{ position: relative; padding: 1.75rem 0 0.5rem; }
+  /* ---------- lesson path ---------- */
+  .path-wrap{ position: relative; padding: 0.5rem 0; }
   .path-line{
-    position: absolute; left: 50%; top: 0.5rem; bottom: 1.5rem; width: 4px; margin-left: -2px;
+    position: absolute; left: 50%; top: 1rem; bottom: 1rem; width: 4px; margin-left: -2px;
     background: repeating-linear-gradient(var(--line-strong) 0 8px, transparent 8px 18px);
-    z-index: 0;
   }
-  .path-nodes{ position: relative; z-index: 1; display: flex; flex-direction: column; gap: 1.5rem; align-items: center; }
-  .path-node-row{ display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
-  .path-node-row.odd{ transform: translateX(-2.5rem); }
-  .path-node-row.even{ transform: translateX(2.5rem); }
+  .path-nodes{ position: relative; display: flex; flex-direction: column; gap: 1.15rem; align-items: center; }
+  .path-node-row{ display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+  .path-node-row.odd{ transform: translateX(-2.6rem); }
+  .path-node-row.even{ transform: translateX(2.6rem); }
   .path-node{
-    width: 4rem; height: 4rem; border-radius: 50%; border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800;
-    box-shadow: 0 4px 0 rgba(0,0,0,0.18); color: #fff;
+    width: 4.4rem; height: 4.4rem; border-radius: 50%; border: none; cursor: pointer;
+    display: grid; place-items: center; font-size: 1.6rem; font-weight: 800; color: #fff;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.16);
   }
-  .path-node .jp{ line-height: 1; }
+  .path-node:active{ transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.16); }
   .path-node.locked{ background: var(--line-strong); color: var(--ink-soft); cursor: default; box-shadow: none; }
+  .path-node.locked:active{ transform: none; }
   .path-node.available{ background: var(--indigo); }
   .path-node.done{ background: var(--jade); }
-  .path-node.current{ background: var(--accent); animation: pulse 1.8s ease-in-out infinite; }
-  @keyframes pulse{
-    0%,100%{ box-shadow: 0 4px 0 rgba(0,0,0,0.18), 0 0 0 0 var(--accent-soft); }
-    50%{ box-shadow: 0 4px 0 rgba(0,0,0,0.18), 0 0 0 10px transparent; }
+  .path-node.current{ background: var(--accent); animation: pulseRing 1.9s ease-in-out infinite; }
+  @keyframes pulseRing{
+    0%,100%{ box-shadow: 0 5px 0 rgba(0,0,0,0.16), 0 0 0 0 var(--accent-soft); }
+    50%{ box-shadow: 0 5px 0 rgba(0,0,0,0.16), 0 0 0 12px transparent; }
   }
   @media (prefers-reduced-motion: reduce){ .path-node.current{ animation: none; } }
-  .path-node-label{ font-size: 0.72rem; font-weight: 700; color: var(--ink-soft); text-align: center; max-width: 6rem; }
+  .path-node-label{ font-size: 0.75rem; font-weight: 800; color: var(--ink-soft); text-align: center; max-width: 7rem; }
 
-  .dash-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
-  .dash-card{ background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 1rem; }
-  .dash-card .big{ font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-  .dash-card .lbl{ font-size: 0.72rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
-  .due-table{ width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-  .due-table td{ padding: 0.8rem 1rem; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
-  .due-table tr:last-child td{ border-bottom: none; }
-  .due-table .cnt{ font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
-  .due-table .go{ background: var(--surface-alt); border: 1px solid var(--line); border-radius: 999px; padding: 0.4rem 0.85rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; color: var(--ink); }
-
+  /* ---------- region carousel ---------- */
   .region-scroll{
-    display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory;
-    padding: 0.15rem 1rem 0.6rem; margin: 0 -1rem 0.5rem; -webkit-overflow-scrolling: touch;
+    display: flex; gap: 0.85rem; overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 0.15rem 1rem 0.6rem; margin: 0 -1rem; scrollbar-width: none;
   }
+  .region-scroll::-webkit-scrollbar{ display: none; }
   .region-card{
-    position: relative; flex: 0 0 9.75rem; height: 12.5rem; border-radius: 22px; overflow: hidden;
+    position: relative; flex: 0 0 9.5rem; height: 12rem; border-radius: 22px; overflow: hidden;
     scroll-snap-align: start; color: #fff; box-shadow: var(--shadow-md); cursor: pointer;
   }
-  .region-card.locked{ cursor: default; filter: saturate(0.45) brightness(0.82); }
+  .region-card.locked{ filter: saturate(0.4) brightness(0.8); cursor: default; }
   .region-mountain{
     position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 78%; height: 52%; background: rgba(255,255,255,0.22);
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
   }
-  .region-mountain::after{
-    content: ""; position: absolute; top: 22%; left: 50%; width: 0.9rem; height: 0.9rem;
-    transform: translateX(-50%); border-radius: 50%; background: rgba(255,255,255,0.5);
-  }
-  .region-lock{ position: absolute; top: 0.7rem; right: 0.7rem; font-size: 1rem; }
+  .region-lock{ position: absolute; top: 0.6rem; right: 0.7rem; font-size: 1rem; }
   .region-info{
-    position: absolute; left: 0; right: 0; bottom: 0; padding: 0.85rem;
-    background: linear-gradient(to top, rgba(0,0,0,0.5), transparent 80%);
+    position: absolute; inset: auto 0 0 0; padding: 0.8rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.55), transparent 85%);
   }
-  .region-name{ font-weight: 800; font-size: 1.05rem; }
-  .region-theme{ font-size: 0.7rem; opacity: 0.92; margin-top: 0.2rem; line-height: 1.35; }
-  .region-badge{ font-size: 0.66rem; font-weight: 700; margin-top: 0.5rem; opacity: 0.95; letter-spacing: 0.02em; }
+  .region-name{ font-weight: 800; font-size: 1rem; }
+  .region-theme{ font-size: 0.68rem; opacity: 0.92; margin-top: 0.15rem; line-height: 1.3; }
+  .region-badge{ font-size: 0.64rem; font-weight: 800; margin-top: 0.45rem; }
 
-  /* -------- tabs -------- */
-  .tabs{ display: flex; gap: 0.4rem; margin: 1.1rem 0 1rem; overflow-x: auto; }
-  .tab{
-    border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
-    border-radius: 999px; padding: 0.5rem 0.95rem; font-weight: 700; font-size: 0.85rem;
-    cursor: pointer; white-space: nowrap;
+  /* ---------- segmented control ---------- */
+  .segmented{
+    display: flex; gap: 0.2rem; background: var(--surface-alt);
+    border: 1px solid var(--line); border-radius: 14px; padding: 0.25rem; margin: 0.9rem 0 1.1rem;
   }
-  .tab.active{ background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .segmented button{
+    flex: 1; border: none; background: none; border-radius: 11px;
+    padding: 0.6rem 0.35rem; font-weight: 800; font-size: 0.82rem; cursor: pointer; color: var(--ink-soft);
+  }
+  .segmented button.active{ background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
 
-  .learn-heading{ display: none; font-size: 1.05rem; margin-bottom: 0.75rem; }
-  .learn-section{ display: none; }
-  .learn-section.active{ display: block; }
-
-  /* -------- kana grid -------- */
-  .kgrid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(4.2rem, 1fr)); gap: 0.55rem; }
+  /* ---------- kana grid ---------- */
+  .kgrid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(4.3rem,1fr)); gap: 0.55rem; }
   .ktile{
-    aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--line);
-    background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center;
-    cursor: pointer; position: relative; color: var(--ink);
+    aspect-ratio: 1; border-radius: 18px; border: 1px solid var(--line); background: var(--surface);
+    display: grid; place-content: center; justify-items: center; gap: 0.1rem;
+    cursor: pointer; box-shadow: var(--shadow-sm);
   }
-  .ktile .c{ font-size: 1.5rem; font-weight: 700; }
-  .ktile .r{ font-size: 0.65rem; color: var(--ink-soft); }
-  .ktile.locked{ opacity: 0.35; cursor: default; }
-  .ktile.b0{ box-shadow: inset 0 0 0 2px var(--line-strong); }
+  .ktile .c{ font-size: 1.55rem; font-weight: 800; }
+  .ktile .r{ font-size: 0.66rem; color: var(--ink-soft); font-weight: 700; }
+  .ktile.locked{ opacity: 0.35; cursor: default; box-shadow: none; }
   .ktile.b1,.ktile.b2{ box-shadow: inset 0 0 0 2px var(--gold); background: var(--gold-soft); }
   .ktile.b3,.ktile.b4{ box-shadow: inset 0 0 0 2px var(--jade); background: var(--jade-soft); }
-  .ktile.b5{ box-shadow: inset 0 0 0 2px var(--jade); background: var(--jade); }
+  .ktile.b5{ background: var(--jade); }
   .ktile.b5 .c, .ktile.b5 .r{ color: #fff; }
 
-  /* -------- vocab list -------- */
-  .vlist{ display: flex; flex-direction: column; gap: 0.6rem; }
+  /* ---------- lists ---------- */
+  .vlist{ display: flex; flex-direction: column; gap: 0.55rem; }
   .vrow{
-    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
-    background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 0.8rem 1rem;
-    cursor: pointer;
+    display: flex; align-items: center; gap: 0.8rem;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+    padding: 0.85rem 1rem; cursor: pointer; box-shadow: var(--shadow-sm); min-height: 3.75rem;
   }
-  .vrow .jp{ font-size: 1.15rem; font-weight: 700; }
-  .vrow .romaji{ color: var(--ink-soft); font-size: 0.8rem; }
-  .vrow .en{ color: var(--ink-soft); font-size: 0.85rem; text-align: right; }
-  .box-dot{ width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); flex-shrink: 0; }
+  .vrow .jp{ font-size: 1.2rem; font-weight: 800; }
+  .vrow .romaji{ color: var(--ink-soft); font-size: 0.78rem; }
+  .vrow .en{ color: var(--ink-soft); font-size: 0.86rem; text-align: right; margin-left: auto; }
+  .box-dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); flex-shrink: 0; }
   .box-dot.due{ background: var(--accent); }
   .box-dot.mastered{ background: var(--jade); }
 
-  /* -------- session -------- */
-  .session{ display: flex; flex-direction: column; align-items: center; padding-top: 2.5rem; gap: 1.5rem; }
-  .session-progress{ width: 100%; height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; }
-  .session-progress > div{ height: 100%; background: var(--accent); transition: width 0.3s ease; }
-  .prompt-jp{ font-size: 3.2rem; font-weight: 700; text-align: center; }
-  .prompt-en{ font-size: 1.6rem; font-weight: 700; text-align: center; }
-  .speak-btn{
-    border: 1px solid var(--line); background: var(--surface-alt); border-radius: 999px;
-    width: 2.6rem; height: 2.6rem; cursor: pointer; font-size: 1.1rem; color: var(--ink);
+  .plist{ display: flex; flex-direction: column; gap: 0.6rem; }
+  .prow{
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+    padding: 0.9rem 1rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 0.8rem; cursor: pointer;
   }
-  .choices{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; width: 100%; }
-  .choice{
-    border: 1px solid var(--line); background: var(--surface); border-radius: 14px;
-    padding: 1rem 0.6rem; font-size: 1.05rem; font-weight: 700; cursor: pointer; color: var(--ink);
-  }
-  .choice.correct{ background: var(--jade-soft); border-color: var(--jade); color: var(--jade); }
-  .choice.wrong{ background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-  .choice[disabled]{ cursor: default; }
-  .session-exit{ align-self: flex-start; background: none; border: none; color: var(--ink-soft); font-size: 0.85rem; cursor: pointer; padding: 0; }
+  .prow .jp{ font-size: 1.1rem; font-weight: 800; }
+  .prow .meta{ flex: 1; min-width: 0; }
+  .prow .en{ font-size: 0.85rem; color: var(--ink-soft); }
+  .prow .sit{ font-size: 0.68rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800; margin-bottom: 0.15rem; }
 
+  /* ---------- session ---------- */
+  .session{
+    display: flex; flex-direction: column; align-items: center; gap: 1.1rem;
+    min-height: calc(100dvh - 9rem); padding-top: 0.75rem;
+  }
+  .session-top{ display: flex; align-items: center; gap: 0.75rem; width: 100%; }
+  .session-exit{ background: none; border: none; color: var(--ink-soft); font-size: 1.3rem; cursor: pointer; padding: 0.25rem; line-height: 1; }
+  .session-progress{ flex: 1; height: 12px; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .session-progress > div{ height: 100%; background: var(--jade); border-radius: 999px; transition: width .35s ease; }
+  .prompt-jp{ font-size: 4rem; font-weight: 800; text-align: center; line-height: 1.1; }
+  .prompt-sub{ color: var(--ink-soft); text-align: center; font-size: 0.95rem; }
+  .session-spacer{ flex: 1; }
+  .choices{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; width: 100%; padding-bottom: 0.5rem; }
+  .choice{
+    border: 1px solid var(--line-strong); background: var(--surface); border-radius: 18px;
+    padding: 1.1rem 0.6rem; font-size: 1.05rem; font-weight: 800; cursor: pointer;
+    box-shadow: 0 4px 0 var(--line-strong); min-height: 4rem;
+  }
+  .choice:active{ transform: translateY(3px); box-shadow: 0 1px 0 var(--line-strong); }
+  .choice.correct{ background: var(--jade-soft); border-color: var(--jade); color: var(--jade); box-shadow: 0 4px 0 var(--jade); }
+  .choice.wrong{ background: var(--accent-soft); border-color: var(--accent); color: var(--accent); box-shadow: 0 4px 0 var(--accent); }
+  .choice[disabled]{ cursor: default; }
+
+  .summary{ text-align: center; padding-top: 2.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+  .summary .xp-earned{ font-size: 2.6rem; font-weight: 800; color: var(--gold); }
+
+  /* ---------- trace ---------- */
   .trace-canvas{
     width: 100%; max-width: 19rem; aspect-ratio: 1;
-    background: var(--surface); border: 2px dashed var(--line-strong); border-radius: 22px;
+    background: var(--surface); border: 2px dashed var(--line-strong); border-radius: 24px;
     touch-action: none; box-shadow: var(--shadow-sm); cursor: crosshair;
   }
-  .btn-row{ display: flex; gap: 0.6rem; width: 100%; margin-bottom: 1rem; }
-  .btn-row .btn{ flex: 1; margin-bottom: 0; }
 
-  .swipe-stack{ width: 100%; max-width: 19rem; height: 15.5rem; perspective: 1400px; margin: 0.5rem 0 1.25rem; }
+  /* ---------- swipe deck ---------- */
+  .swipe-stack{ width: 100%; max-width: 19rem; height: 16rem; perspective: 1400px; }
   .swipe-card{ width: 100%; height: 100%; cursor: pointer; touch-action: pan-y; }
-  .swipe-card-inner{
-    position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
-    transition: transform 0.45s cubic-bezier(.22,1,.36,1);
-  }
+  .swipe-card-inner{ position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .45s cubic-bezier(.22,1,.36,1); }
   .swipe-card.flipped .swipe-card-inner{ transform: rotateY(180deg); }
   .swipe-card-face{
-    position: absolute; inset: 0; backface-visibility: hidden; border-radius: 22px;
+    position: absolute; inset: 0; backface-visibility: hidden; border-radius: 24px;
     background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem;
     text-align: center; padding: 1.5rem;
   }
   .swipe-card-face.back{ transform: rotateY(180deg); }
-  .swipe-hint{ margin-top: 1rem; font-size: 0.72rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+  .swipe-hint{ margin-top: 0.9rem; font-size: 0.7rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800; }
 
-  @media (min-width: 880px){ .mobile-only{ display: none !important; } }
+  /* ---------- bottom sheet ---------- */
+  .sheet-backdrop{
+    position: fixed; inset: 0; background: rgba(0,0,0,0.42); z-index: 60;
+    animation: fadeIn .2s ease both;
+  }
+  @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+  .sheet{
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 61;
+    background: var(--surface); border-radius: 26px 26px 0 0;
+    padding: 0.75rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+    box-shadow: var(--shadow-lg); animation: sheetUp .3s cubic-bezier(.22,1,.36,1) both;
+    max-width: 34rem; margin: 0 auto;
+  }
+  @keyframes sheetUp{ from{ transform: translateY(100%); } to{ transform: none; } }
+  @media (prefers-reduced-motion: reduce){
+    .sheet, .sheet-backdrop{ animation: none; }
+  }
+  .sheet-grab{ width: 2.6rem; height: 4px; border-radius: 999px; background: var(--line-strong); margin: 0 auto 1rem; }
+  .sheet-kana{ font-size: 4.5rem; font-weight: 800; text-align: center; line-height: 1; }
+  .sheet-romaji{ text-align: center; color: var(--ink-soft); font-size: 1.1rem; font-weight: 700; margin-top: 0.3rem; }
+  .sheet-mnemonic{
+    background: var(--gold-soft); border: 1px solid var(--gold); border-radius: 16px;
+    padding: 0.85rem 1rem; margin: 1.1rem 0; font-size: 0.92rem;
+  }
+  .sheet-mnemonic b{ color: var(--gold); display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem; }
 
-  .summary{ text-align: center; padding-top: 3rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-  .summary .xp-earned{ font-size: 2.4rem; font-weight: 800; color: var(--gold); }
-
-  /* -------- talk -------- */
+  /* ---------- talk ---------- */
   .persona-row{ display: flex; gap: 0.6rem; margin-bottom: 1rem; }
   .persona-card{
-    flex: 1; border: 1px solid var(--line); background: var(--surface); border-radius: 14px;
-    padding: 0.7rem; text-align: center; cursor: pointer;
+    flex: 1; border: 1px solid var(--line); background: var(--surface); border-radius: 18px;
+    padding: 0.8rem 0.5rem; text-align: center; cursor: pointer; box-shadow: var(--shadow-sm);
   }
   .persona-card.active{ border-color: var(--indigo); background: var(--indigo-soft); }
-  .persona-card .av{ font-size: 1.5rem; }
-  .persona-card .nm{ font-weight: 700; font-size: 0.85rem; }
-  .persona-card .rl{ font-size: 0.7rem; color: var(--ink-soft); }
-  .chat-log{ display: flex; flex-direction: column; gap: 0.7rem; min-height: 16rem; margin-bottom: 0.85rem; }
-  .bubble{ max-width: 82%; padding: 0.7rem 0.9rem; border-radius: 16px; font-size: 0.92rem; white-space: pre-wrap; }
-  .bubble.them{ background: var(--surface-alt); border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; }
-  .bubble.me{ background: var(--indigo); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-  .chat-form{ display: flex; gap: 0.5rem; position: sticky; bottom: 4.5rem; }
+  .persona-card .av{ font-size: 1.6rem; }
+  .persona-card .nm{ font-weight: 800; font-size: 0.85rem; }
+  .persona-card .rl{ font-size: 0.68rem; color: var(--ink-soft); }
+  .chat-log{ display: flex; flex-direction: column; gap: 0.6rem; min-height: 15rem; margin-bottom: 0.8rem; }
+  .bubble{ max-width: 84%; padding: 0.75rem 0.95rem; border-radius: 18px; font-size: 0.95rem; white-space: pre-wrap; }
+  .bubble.them{ background: var(--surface); border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 5px; box-shadow: var(--shadow-sm); }
+  .bubble.me{ background: var(--indigo); color: #fff; align-self: flex-end; border-bottom-right-radius: 5px; }
+  .chat-form{ display: flex; gap: 0.5rem; position: sticky; bottom: calc(5rem + env(safe-area-inset-bottom)); }
   .chat-input{
-    flex: 1; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
-    border-radius: 999px; padding: 0.75rem 1rem; font-size: 0.95rem;
+    flex: 1; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
+    border-radius: 999px; padding: 0.85rem 1.1rem; font-size: 1rem; min-height: 3.1rem;
   }
-  .chat-send{ border: none; background: var(--indigo); color: #fff; border-radius: 999px; width: 3rem; cursor: pointer; font-size: 1.1rem; }
-  .notice{ font-size: 0.85rem; color: var(--ink-soft); text-align: center; padding: 1.5rem 1rem; }
+  .chat-send{ border: none; background: var(--indigo); color: #fff; border-radius: 50%; width: 3.1rem; min-width: 3.1rem; cursor: pointer; font-size: 1.15rem; }
+  .notice{ font-size: 0.9rem; color: var(--ink-soft); text-align: center; padding: 1.5rem 1rem; background: var(--surface-alt); border-radius: 18px; }
+  .banner{ padding: 0.9rem 1rem; border-radius: 16px; background: var(--jade-soft); border: 1px solid var(--jade); font-size: 0.88rem; margin-bottom: 1rem; }
 
-  /* -------- progress view -------- */
+  /* ---------- stats ---------- */
   .stat-block{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-bottom: 1.25rem; }
-  .stat-box{ background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 1rem; }
-  .stat-box .big{ font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-  .stat-box .lbl{ font-size: 0.75rem; color: var(--ink-soft); }
-  .barlist{ display:flex; flex-direction: column; gap: 0.55rem; }
-  .barrow{ display: flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; }
-  .barrow .lbl{ width: 5.2rem; color: var(--ink-soft); flex-shrink: 0; }
-  .barrow .track{ flex: 1; height: 10px; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .stat-box{ background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 1.1rem; box-shadow: var(--shadow-sm); }
+  .stat-box .big{ font-size: 1.7rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .stat-box .lbl{ font-size: 0.74rem; color: var(--ink-soft); }
+  .barlist{ display: flex; flex-direction: column; gap: 0.6rem; }
+  .barrow{ display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; }
+  .barrow .lbl{ width: 5.4rem; color: var(--ink-soft); flex-shrink: 0; font-weight: 700; }
+  .barrow .track{ flex: 1; height: 11px; background: var(--line); border-radius: 999px; overflow: hidden; }
   .barrow .fill{ height: 100%; border-radius: 999px; }
-  .barrow .val{ width: 2rem; text-align: right; font-variant-numeric: tabular-nums; }
+  .barrow .val{ width: 2.2rem; text-align: right; font-variant-numeric: tabular-nums; font-weight: 800; }
 
-  /* -------- nav -------- */
+  /* ---------- bottom nav ---------- */
   nav.tabbar{
-    position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface);
-    border-top: 1px solid var(--line); display: flex; justify-content: space-around;
-    padding: 0.5rem 0.25rem calc(0.5rem + env(safe-area-inset-bottom));
-    z-index: 20;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+    border-top: 1px solid var(--line);
+    display: flex; justify-content: space-around;
+    padding: 0.4rem 0.25rem calc(0.4rem + env(safe-area-inset-bottom));
   }
   .navbtn{
-    background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
-    color: var(--ink-soft); font-size: 0.65rem; font-weight: 700; padding: 0.3rem 0.6rem; cursor: pointer; border-radius: 10px;
+    background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 0.12rem;
+    color: var(--ink-soft); font-size: 0.66rem; font-weight: 800; cursor: pointer;
+    padding: 0.4rem 0.9rem; border-radius: 14px; min-width: 3.9rem;
   }
-  .navbtn .ic{ font-size: 1.25rem; }
-  .navbtn.active{ color: var(--accent); }
-
-  @media (min-width: 880px){
-    body{ padding-bottom: 0; padding-left: 6.5rem; }
-    #app{ max-width: 58rem; padding: 0 1.5rem; }
-    .topbar{ max-width: 58rem; padding-right: 4.25rem; }
-    nav.tabbar{
-      left: 0; right: auto; top: 0; bottom: 0; width: 6rem; flex-direction: column; justify-content: flex-start;
-      padding: 1.5rem 0.5rem; border-top: none; border-right: 1px solid var(--line); gap: 0.5rem;
-    }
-    .navbtn{ font-size: 0.7rem; padding: 0.6rem 0.4rem; }
-    .kgrid{ grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr)); }
-
-    .home-mobile{ display: none; }
-    .home-desktop{ display: block; }
-    .dash-grid{ grid-template-columns: repeat(4, 1fr); }
-
-    .tabs{ display: none; }
-    .learn-heading{ display: block; }
-    .learn-section{ display: block !important; margin-bottom: 2rem; }
-    .learn-body{ display: grid; grid-template-columns: 1.3fr 1fr; gap: 2rem; align-items: start; }
-  }
+  .navbtn .ic{ font-size: 1.35rem; line-height: 1; }
+  .navbtn.active{ color: var(--accent); background: var(--accent-soft); }
 
   .confetti-canvas{ position: fixed; inset: 0; pointer-events: none; z-index: 999; }
 
-  .theme-toggle{
-    position: fixed; top: 1rem; right: 1rem; z-index: 25;
-    width: 2.6rem; height: 2.6rem; border-radius: 50%;
-    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
-    font-size: 1.15rem; cursor: pointer; box-shadow: var(--shadow-sm);
-    display: flex; align-items: center; justify-content: center;
+  .desktop-only{ display: none; }
+
+  @media (hover: hover){
+    .btn:hover, .action:hover, .ktile:hover, .vrow:hover, .prow:hover{ filter: brightness(0.98); }
   }
-  @media (min-width: 880px){ .theme-toggle{ top: 1.25rem; right: 1.5rem; } }
+
+  /* ---------- desktop ---------- */
+  @media (min-width: 880px){
+    body{ font-size: 16px; padding-bottom: 0; padding-left: 6.5rem; }
+    #app{ max-width: 58rem; padding: 0 1.5rem 4rem; }
+    .appbar{ position: static; background: none; backdrop-filter: none; border: none; }
+    .appbar-inner{ max-width: 58rem; padding: 1.25rem 1.5rem 0.5rem; }
+    nav.tabbar{
+      left: 0; right: auto; top: 0; bottom: 0; width: 6rem; flex-direction: column;
+      justify-content: flex-start; gap: 0.4rem; padding: 1.5rem 0.5rem;
+      border-top: none; border-right: 1px solid var(--line);
+    }
+    .navbtn{ font-size: 0.7rem; width: 100%; }
+    .mobile-only{ display: none !important; }
+    .desktop-only{ display: block; }
+    .kgrid{ grid-template-columns: repeat(auto-fill, minmax(4.8rem,1fr)); }
+    .segmented{ display: none; }
+    .learn-section{ display: block !important; margin-bottom: 2.5rem; }
+    .learn-heading{ display: block; font-size: 1.15rem; margin-bottom: 0.8rem; }
+    .learn-body{ display: grid; grid-template-columns: 1.25fr 1fr; gap: 2rem; align-items: start; }
+    .session{ min-height: auto; }
+    .prompt-jp{ font-size: 4.5rem; }
+    .dash-grid{ display: grid; grid-template-columns: repeat(4,1fr); gap: 0.8rem; margin-bottom: 1.5rem; }
+    .dash-card{ background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 1.1rem; box-shadow: var(--shadow-sm); }
+    .dash-card .big{ font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .dash-card .lbl{ font-size: 0.72rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+    .due-table{ width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); }
+    .due-table td{ padding: 0.85rem 1rem; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+    .due-table tr:last-child td{ border-bottom: none; }
+    .due-table .cnt{ font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+    .due-table .go{ background: var(--surface-alt); border: 1px solid var(--line); border-radius: 999px; padding: 0.45rem 0.9rem; font-size: 0.8rem; font-weight: 800; cursor: pointer; }
+    .desk-actions{ display: flex; gap: 0.6rem; margin-top: 1.25rem; flex-wrap: wrap; }
+  }
+  .learn-heading{ display: none; }
+  .learn-section{ display: none; }
+  .learn-section.active{ display: block; }
 </style>
+
+<header class="appbar">
+  <div class="appbar-inner">
+    <div class="title">Nihongo Dojo</div>
+    <div class="chip flame" id="chipStreak">🔥 0</div>
+    <div class="chip gem" id="chipLevel">⭐ Lv1</div>
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle light or dark theme">☀️</button>
+  </div>
+</header>
 
 <div id="app"></div>
 <nav class="tabbar" id="tabbar"></nav>
-<button class="theme-toggle" id="themeToggle" aria-label="Toggle light or dark theme">☀️</button>
+<div id="sheetRoot"></div>
 
 <script>
 (function(){
   "use strict";
 
-  var HIRAGANA = [["あ","a"],["い","i"],["う","u"],["え","e"],["お","o"],
-    ["か","ka"],["き","ki"],["く","ku"],["け","ke"],["こ","ko"],
-    ["さ","sa"],["し","shi"],["す","su"],["せ","se"],["そ","so"],
-    ["た","ta"],["ち","chi"],["つ","tsu"],["て","te"],["と","to"],
-    ["な","na"],["に","ni"],["ぬ","nu"],["ね","ne"],["の","no"],
-    ["は","ha"],["ひ","hi"],["ふ","fu"],["へ","he"],["ほ","ho"],
-    ["ま","ma"],["み","mi"],["む","mu"],["め","me"],["も","mo"],
-    ["や","ya"],["ゆ","yu"],["よ","yo"],
-    ["ら","ra"],["り","ri"],["る","ru"],["れ","re"],["ろ","ro"],
-    ["わ","wa"],["を","wo"],["ん","n"]];
+  // [char, romaji, mnemonic]
+  var HIRAGANA = [
+    ["あ","a","Looks like an 'A' with a twist — an Antenna on a roof."],
+    ["い","i","Two eels swimming side by side. 'ee'-ls."],
+    ["う","u","A person with a big nose going 'ooo'."],
+    ["え","e","An exotic ninja with a pointy hat — 'eh?'"],
+    ["お","o","Like あ but with a surfboard — an Octopus riding it."],
+    ["か","ka","A mosquito (ka in Japanese) about to bite."],
+    ["き","ki","A key with two teeth on the side."],
+    ["く","ku","A cuckoo bird's open beak."],
+    ["け","ke","A keg lying on its side with a tap."],
+    ["こ","ko","Two coins stacked up."],
+    ["さ","sa","A salmon leaping up a waterfall."],
+    ["し","shi","A fishing hook — 'she' caught a fish."],
+    ["す","su","A swing with a loop — Sue on a swing."],
+    ["せ","se","A mouth with one tooth — the sensei shouting."],
+    ["そ","so","A zigzag sewing stitch."],
+    ["た","ta","A 't' and an 'a' stuck together — a taco stand."],
+    ["ち","chi","A cheerleader bending backwards."],
+    ["つ","tsu","A tsunami wave curling over."],
+    ["て","te","A tennis racket held out flat."],
+    ["と","to","A toe with a splinter stuck in it."],
+    ["な","na","A nun kneeling to pray."],
+    ["に","ni","A knee bending, with a wall behind."],
+    ["ぬ","nu","Noodles twirled around chopsticks."],
+    ["ね","ne","A cat's curly tail — neko means cat."],
+    ["の","no","A 'no entry' sign with a slash."],
+    ["は","ha","An 'H' plus 'A' — HA! someone laughing."],
+    ["ひ","hi","A wide smiling mouth going 'heeee'."],
+    ["ふ","fu","Mount Fuji with clouds around it."],
+    ["へ","he","A heron gliding over a hill."],
+    ["ほ","ho","Like は plus a chimney — a hotel."],
+    ["ま","ma","Mama tying her hair in a bow."],
+    ["み","mi","Looks like the number 21 — 'mi' a misfit."],
+    ["む","mu","A cow's face going 'muuu'."],
+    ["め","me","An eye (me means eye) with lashes."],
+    ["も","mo","A fishing hook with more worms on it."],
+    ["や","ya","A yak with horns and a long face."],
+    ["ゆ","yu","A unique fish swimming sideways."],
+    ["よ","yo","A yo-yo hanging on its string."],
+    ["ら","ra","A rabbit sitting up, ears back."],
+    ["り","ri","Two reeds standing in water."],
+    ["る","ru","A loop at the bottom — a 'roop'."],
+    ["れ","re","Like る but unravelled — a rebel running."],
+    ["ろ","ro","Like る with no loop — an open road."],
+    ["わ","wa","A person waving with one arm out."],
+    ["を","wo","Someone throwing a ball — 'whoa!'"],
+    ["ん","n","A simple 'n' squiggle, like cursive n."]
+  ];
 
-  var KATAKANA = [["ア","a"],["イ","i"],["ウ","u"],["エ","e"],["オ","o"],
-    ["カ","ka"],["キ","ki"],["ク","ku"],["ケ","ke"],["コ","ko"],
-    ["サ","sa"],["シ","shi"],["ス","su"],["セ","se"],["ソ","so"],
-    ["タ","ta"],["チ","chi"],["ツ","tsu"],["テ","te"],["ト","to"],
-    ["ナ","na"],["ニ","ni"],["ヌ","nu"],["ネ","ne"],["ノ","no"],
-    ["ハ","ha"],["ヒ","hi"],["フ","fu"],["ヘ","he"],["ホ","ho"],
-    ["マ","ma"],["ミ","mi"],["ム","mu"],["メ","me"],["モ","mo"],
-    ["ヤ","ya"],["ユ","yu"],["ヨ","yo"],
-    ["ラ","ra"],["リ","ri"],["ル","ru"],["レ","re"],["ロ","ro"],
-    ["ワ","wa"],["ヲ","wo"],["ン","n"]];
+  var KATAKANA = [
+    ["ア","a","An axe chopping down."],
+    ["イ","i","An eagle's beak pointing down."],
+    ["ウ","u","A roof over a head going 'ooo'."],
+    ["エ","e","An 'I' beam an engineer welds."],
+    ["オ","o","Like ア with a pole — an octopus on it."],
+    ["カ","ka","Like か without the dot — a mosquito."],
+    ["キ","ki","A key, sharper than き."],
+    ["ク","ku","A croissant with a bite taken out."],
+    ["ケ","ke","The corner of a keg."],
+    ["コ","ko","A corner bracket — two coins squared."],
+    ["サ","sa","A salmon's skeleton."],
+    ["シ","shi","A smiling face tipped sideways — 'shi'."],
+    ["ス","su","A ski slope going down."],
+    ["セ","se","Like せ squared off — the sensei."],
+    ["ソ","so","A needle with thread — sewing."],
+    ["タ","ta","Like ク plus a slash — a taco."],
+    ["チ","chi","Like ち squared — a cheerleader."],
+    ["ツ","tsu","A tsunami — like シ but tipped up."],
+    ["テ","te","A tennis net seen from the side."],
+    ["ト","to","A totem pole with one peg."],
+    ["ナ","na","A knife stuck in a board."],
+    ["ニ","ni","Two lines — 'ni' means two!"],
+    ["ヌ","nu","Noodles hanging off chopsticks."],
+    ["ネ","ne","A nest up on a pole."],
+    ["ノ","no","A single slash — 'no'."],
+    ["ハ","ha","Two legs apart laughing 'ha ha'."],
+    ["ヒ","hi","A heel of a boot."],
+    ["フ","fu","One slope of Mount Fuji."],
+    ["ヘ","he","Same as へ — a heron over a hill."],
+    ["ホ","ho","Like 木 — a hotel sign post."],
+    ["マ","ma","Mama's arms folded."],
+    ["ミ","mi","Three lines — mittsu means three!"],
+    ["ム","mu","A cow's snout going 'muuu'."],
+    ["メ","me","An X — X marks what 'me' sees."],
+    ["モ","mo","Like も squared — more hooks."],
+    ["ヤ","ya","A yak's horn."],
+    ["ユ","yu","A U on its side."],
+    ["ヨ","yo","Three prongs — yo, a comb!"],
+    ["ラ","ra","A rabbit's ears folded down."],
+    ["リ","ri","Two reeds, straighter than り."],
+    ["ル","ru","Two legs running — 'roo'."],
+    ["レ","re","A single bent line — a ramp."],
+    ["ロ","ro","A square room."],
+    ["ワ","wa","Like ウ without the tick — waving."],
+    ["ヲ","wo","Like フ with a line — 'whoa'."],
+    ["ン","n","A short tick — like ソ but flatter."]
+  ];
 
   var VOCAB = [
     {id:"kore",jp:"これ",romaji:"kore",en:"this"},
@@ -477,8 +638,28 @@
     {id:"san",jp:"三",romaji:"san",en:"three"}
   ];
 
+  // Situational survival phrases, NHK "Easy Travel Japanese" style.
+  var PHRASES = [
+    {jp:"すみません",romaji:"sumimasen",en:"Excuse me / Sorry",sit:"Getting attention",when:"The most useful word in Japan. Use it to call a waiter, squeeze past someone, or apologise."},
+    {jp:"ありがとうございます",romaji:"arigatou gozaimasu",en:"Thank you very much",sit:"Politeness",when:"The full polite form. Drop 'gozaimasu' with friends."},
+    {jp:"おねがいします",romaji:"onegaishimasu",en:"Please / I request it",sit:"Ordering",when:"Add after what you want: コーヒー、おねがいします."},
+    {jp:"これをください",romaji:"kore o kudasai",en:"This one, please",sit:"Shopping",when:"Point at what you want and say this. Works everywhere."},
+    {jp:"いくらですか",romaji:"ikura desu ka",en:"How much is it?",sit:"Shopping",when:"Ask the price of anything. Listen for the number in reply."},
+    {jp:"わかりません",romaji:"wakarimasen",en:"I don't understand",sit:"Getting help",when:"Honest and polite. Usually gets people to slow down or gesture."},
+    {jp:"もういちど おねがいします",romaji:"mou ichido onegaishimasu",en:"One more time, please",sit:"Getting help",when:"When you almost caught it. Better than nodding along."},
+    {jp:"えいごが わかりますか",romaji:"eigo ga wakarimasu ka",en:"Do you understand English?",sit:"Getting help",when:"Ask before switching to English — it's the polite order."},
+    {jp:"トイレは どこですか",romaji:"toire wa doko desu ka",en:"Where is the toilet?",sit:"Directions",when:"Swap トイレ for any place: 駅は どこですか (Where's the station?)."},
+    {jp:"だいじょうぶです",romaji:"daijoubu desu",en:"It's fine / I'm okay",sit:"Everyday",when:"Also means 'no thank you' when declining politely."},
+    {jp:"おいしい",romaji:"oishii",en:"Delicious",sit:"Eating",when:"Say it while eating. Cooks and staff love hearing it."},
+    {jp:"はじめまして",romaji:"hajimemashite",en:"Nice to meet you",sit:"Introductions",when:"Only the first time you meet someone."},
+    {jp:"いただきます",romaji:"itadakimasu",en:"Let's eat / I receive",sit:"Eating",when:"Said before every meal, hands together."},
+    {jp:"ごちそうさまでした",romaji:"gochisousama deshita",en:"Thank you for the meal",sit:"Eating",when:"Said after eating, to the cook or the restaurant staff."},
+    {jp:"たすけて",romaji:"tasukete",en:"Help!",sit:"Emergency",when:"Shout this in real trouble. 「けいさつ」= police."},
+    {jp:"だいじょうぶですか",romaji:"daijoubu desu ka",en:"Are you okay?",sit:"Everyday",when:"Same words as 'I'm okay' — the か makes it a question."}
+  ];
+
   var PERSONAS = [
-    {id:"yuki", name:"Yuki", role:"Convenience store clerk", avatar:"🍙",
+    {id:"yuki", name:"Yuki", role:"Store clerk", avatar:"🍙",
      style:"friendly and upbeat, talks about everyday items, snacks, drinks, and prices, very patient with beginners"},
     {id:"kenji", name:"Kenji", role:"Casual friend", avatar:"🧢",
      style:"relaxed and casual, talks about hobbies, weekend plans, food, and school or work"}
@@ -494,18 +675,11 @@
 
   var INTERVAL_DAYS = [0,1,2,4,8,16];
   var NEW_KANA_BATCH = 5;
+  var VOCAB_BATCH = 8;
 
-  var claudeDb = null, claudeUser = null, claudeSample = null, uid = null, stateRef = null;
-  var S = null;
-  var view = "home";
-  var learnTab = "hiragana";
-  var persistTimer = null;
-
-  var sessionState = null;
-  var talkState = null;
-  var traceState = null;
-  var swipeState = null;
-
+  var claudeDb=null, claudeUser=null, claudeSample=null, uid=null, stateRef=null;
+  var S=null, view="home", learnTab="hiragana", persistTimer=null;
+  var sessionState=null, talkState=null, traceState=null, swipeState=null, sheetState=null;
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function todayStr(d){
@@ -520,9 +694,7 @@
   function pick(arr,n){ return shuffle(arr).slice(0,n); }
   function esc(s){ var d=document.createElement("div"); d.textContent=s==null?"":String(s); return d.innerHTML; }
 
-  function defaultState(){
-    return { xp:0, streak:0, lastActiveDate:null, createdAt:Date.now(), kana:{}, vocab:{} };
-  }
+  function defaultState(){ return { xp:0, streak:0, lastActiveDate:null, createdAt:Date.now(), kana:{}, vocab:{} }; }
   function normalizeState(raw){
     var s = defaultState();
     if(raw && typeof raw==="object"){
@@ -538,46 +710,40 @@
 
   function level(){ return 1+Math.floor(S.xp/150); }
   function xpIntoLevel(){ return S.xp % 150; }
-
-  function isDue(entry){ return !entry || !entry.due || entry.due <= Date.now(); }
-  function isMastered(entry){ return entry && entry.box>=5; }
+  function isDue(e){ return !e || !e.due || e.due <= Date.now(); }
+  function isMastered(e){ return e && e.box>=5; }
 
   function speak(text){
     try{
       if(!("speechSynthesis" in window)) return;
       window.speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(text);
-      u.lang = "ja-JP";
+      u.lang = "ja-JP"; u.rate = 0.85;
       window.speechSynthesis.speak(u);
     }catch(e){}
   }
 
   var audioCtx = null;
   function ensureAudio(){
-    if(!audioCtx){
-      try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; }
-    }
+    if(!audioCtx){ try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
     if(audioCtx.state==="suspended"){ audioCtx.resume().catch(function(){}); }
     return audioCtx;
   }
   function chime(good){
-    var ctx = ensureAudio();
-    if(!ctx) return;
+    var ctx = ensureAudio(); if(!ctx) return;
     var now = ctx.currentTime;
-    var freqs = good ? [659,880] : [220,164];
-    freqs.forEach(function(f,i){
-      var o = ctx.createOscillator();
-      var g = ctx.createGain();
-      o.type = good ? "sine" : "triangle";
-      o.frequency.value = f;
+    (good?[659,880]:[220,164]).forEach(function(f,i){
+      var o=ctx.createOscillator(), g=ctx.createGain();
+      o.type = good?"sine":"triangle"; o.frequency.value=f;
       o.connect(g); g.connect(ctx.destination);
-      var t = now + i*0.09;
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.16, t+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t+0.24);
+      var t = now+i*0.09;
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.16,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.24);
       o.start(t); o.stop(t+0.26);
     });
   }
+  function haptic(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
 
   function reactMascot(el, good){
     if(!el || reduceMotion) return;
@@ -586,10 +752,6 @@
     var cls = good?"bounce":"shake";
     el.classList.add(cls);
     setTimeout(function(){ el.classList.remove(cls); }, good?520:420);
-  }
-
-  function haptic(pattern){
-    try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){}
   }
 
   function confetti(){
@@ -604,25 +766,24 @@
     var particles = [];
     for(var i=0;i<70;i++){
       particles.push({
-        x: innerWidth/2 + (Math.random()-0.5)*220, y: innerHeight*0.35,
-        vx: (Math.random()-0.5)*8, vy: Math.random()*-7-2, g: 0.28,
-        size: 4+Math.random()*5, color: colors[Math.floor(Math.random()*colors.length)],
-        rot: Math.random()*Math.PI, vr: (Math.random()-0.5)*0.35
+        x: innerWidth/2+(Math.random()-0.5)*220, y: innerHeight*0.35,
+        vx:(Math.random()-0.5)*8, vy:Math.random()*-7-2, g:0.28,
+        size:4+Math.random()*5, color:colors[Math.floor(Math.random()*colors.length)],
+        rot:Math.random()*Math.PI, vr:(Math.random()-0.5)*0.35
       });
     }
-    var frame = 0;
-    function tick(){
+    var frame=0;
+    (function tick(){
       frame++;
       ctx.clearRect(0,0,canvas.width,canvas.height);
       particles.forEach(function(p){
         p.x+=p.vx; p.y+=p.vy; p.vy+=p.g; p.rot+=p.vr;
         ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-        ctx.fillStyle = p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);
+        ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);
         ctx.restore();
       });
       if(frame<95) requestAnimationFrame(tick); else canvas.remove();
-    }
-    requestAnimationFrame(tick);
+    })();
   }
 
   function mascotSvg(size){
@@ -653,390 +814,333 @@
     if(correct) e.correct++;
     e.box = correct ? Math.min(5, e.box+1) : 0;
     var days = INTERVAL_DAYS[e.box]!=null ? INTERVAL_DAYS[e.box] : 16;
-    e.due = Date.now() + days*86400000;
+    e.due = Date.now()+days*86400000;
     S[store][key] = e;
     S.xp += correct ? 10 : 3;
     persist();
   }
 
   function kanaUnlocked(list, idx){
-    if(idx===0) return true;
-    var cutoff = Math.floor(idx/NEW_KANA_BATCH)*NEW_KANA_BATCH;
     if(idx < NEW_KANA_BATCH) return true;
-    var prevBatchStart = cutoff - NEW_KANA_BATCH;
-    for(var i=prevBatchStart;i<cutoff;i++){
+    var cutoff = Math.floor(idx/NEW_KANA_BATCH)*NEW_KANA_BATCH;
+    for(var i=cutoff-NEW_KANA_BATCH;i<cutoff;i++){
       var e = S.kana[list[i][0]];
       if(!e || e.box<1) return false;
     }
     return true;
   }
-
   function kanaDueList(list){
-    var out=[];
-    for(var i=0;i<list.length;i++){ if(kanaUnlocked(list,i) && isDue(S.kana[list[i][0]])) out.push(list[i]); }
-    return out;
+    return list.filter(function(p,i){ return kanaUnlocked(list,i) && isDue(S.kana[p[0]]); });
   }
   function kanaUnlockedList(list){
-    var out=[];
-    for(var i=0;i<list.length;i++){ if(kanaUnlocked(list,i)) out.push(list[i]); }
-    return out;
+    return list.filter(function(p,i){ return kanaUnlocked(list,i); });
   }
   function vocabDueList(){ return VOCAB.filter(function(v){ return isDue(S.vocab[v.id]); }); }
 
-  var VOCAB_BATCH = 8;
   function buildCurriculum(){
-    var hira = [], kata = [], vocab = [];
-    for(var i=0;i<HIRAGANA.length;i+=NEW_KANA_BATCH){
-      hira.push({type:"kana", set:"hiragana", start:i, end:Math.min(i+NEW_KANA_BATCH,HIRAGANA.length), label:"Hiragana "+(Math.floor(i/NEW_KANA_BATCH)+1)});
-    }
-    for(var j=0;j<KATAKANA.length;j+=NEW_KANA_BATCH){
-      kata.push({type:"kana", set:"katakana", start:j, end:Math.min(j+NEW_KANA_BATCH,KATAKANA.length), label:"Katakana "+(Math.floor(j/NEW_KANA_BATCH)+1)});
-    }
-    for(var k=0;k<VOCAB.length;k+=VOCAB_BATCH){
-      vocab.push({type:"vocab", start:k, end:Math.min(k+VOCAB_BATCH,VOCAB.length), label:"Words "+(Math.floor(k/VOCAB_BATCH)+1)});
-    }
-    // Interleave so real words with meanings show up early and often,
-    // instead of gating every word behind a full kana syllabary first.
-    var kana = hira.concat(kata);
-    var nodes = [];
+    var hira=[], kata=[], vocab=[];
+    for(var i=0;i<HIRAGANA.length;i+=NEW_KANA_BATCH)
+      hira.push({type:"kana",set:"hiragana",start:i,end:Math.min(i+NEW_KANA_BATCH,HIRAGANA.length),label:"Hiragana "+(i/NEW_KANA_BATCH+1)});
+    for(var j=0;j<KATAKANA.length;j+=NEW_KANA_BATCH)
+      kata.push({type:"kana",set:"katakana",start:j,end:Math.min(j+NEW_KANA_BATCH,KATAKANA.length),label:"Katakana "+(j/NEW_KANA_BATCH+1)});
+    for(var k=0;k<VOCAB.length;k+=VOCAB_BATCH)
+      vocab.push({type:"vocab",start:k,end:Math.min(k+VOCAB_BATCH,VOCAB.length),label:"Words "+(k/VOCAB_BATCH+1)});
+    // Words first, then interleave so real meanings appear early and often.
+    var kana = hira.concat(kata), nodes = [], since = 0;
     if(vocab.length) nodes.push(vocab.shift());
-    var sinceVocab = 0;
     while(kana.length || vocab.length){
-      if(kana.length){ nodes.push(kana.shift()); sinceVocab++; }
-      if(vocab.length && sinceVocab>=3){ nodes.push(vocab.shift()); sinceVocab=0; }
+      if(kana.length){ nodes.push(kana.shift()); since++; }
+      if(vocab.length && since>=3){ nodes.push(vocab.shift()); since=0; }
     }
-    while(vocab.length) nodes.push(vocab.shift());
     return nodes;
   }
   var CURRICULUM = buildCurriculum();
 
-  function nodeRaw(node){
-    return node.type==="kana" ? (node.set==="hiragana"?HIRAGANA:KATAKANA).slice(node.start,node.end) : VOCAB.slice(node.start,node.end);
+  function nodeRaw(n){
+    return n.type==="kana" ? (n.set==="hiragana"?HIRAGANA:KATAKANA).slice(n.start,n.end) : VOCAB.slice(n.start,n.end);
   }
-  function nodeEntry(node, raw){ return node.type==="kana" ? S.kana[raw[0]] : S.vocab[raw.id]; }
-  function nodeDone(node){
-    return nodeRaw(node).every(function(r){ return isMastered(nodeEntry(node,r)); });
-  }
-  function nodeAttemptedAll(node){
-    return nodeRaw(node).every(function(r){ var e=nodeEntry(node,r); return e && e.seen>0; });
-  }
-  function nodeUnlocked(nodes, idx){
-    if(idx===0) return true;
-    return nodeAttemptedAll(nodes[idx-1]);
+  function nodeEntry(n, raw){ return n.type==="kana" ? S.kana[raw[0]] : S.vocab[raw.id]; }
+  function nodeDone(n){ return nodeRaw(n).every(function(r){ return isMastered(nodeEntry(n,r)); }); }
+  function nodeAttemptedAll(n){ return nodeRaw(n).every(function(r){ var e=nodeEntry(n,r); return e && e.seen>0; }); }
+  function nodeUnlocked(nodes, i){ return i===0 || nodeAttemptedAll(nodes[i-1]); }
+  function nodeProgress(n){
+    var raw = nodeRaw(n), done = raw.filter(function(r){ var e=nodeEntry(n,r); return e && e.seen>0; }).length;
+    return Math.round(done/raw.length*100);
   }
 
   function buildKanaItem(pair, pool){
-    var others = pool.filter(function(p){ return p[0]!==pair[0]; }).map(function(p){ return p[1]; });
-    var wrong = pick(others,3);
-    var opts = shuffle(wrong.concat([pair[1]]));
-    return {
-      type:"kana", key: pair[0], promptJp: pair[0], answer: pair[1],
-      choices: opts.map(function(o){ return {text:o, correct:o===pair[1]}; })
-    };
+    var wrong = pick(pool.filter(function(p){ return p[0]!==pair[0]; }).map(function(p){ return p[1]; }),3);
+    return { type:"kana", key:pair[0], promptJp:pair[0], sub:"", answer:pair[1],
+      choices: shuffle(wrong.concat([pair[1]])).map(function(o){ return {text:o, correct:o===pair[1]}; }) };
   }
   function buildVocabItem(v, pool){
-    var others = pool.filter(function(p){ return p.id!==v.id; }).map(function(p){ return p.en; });
-    var wrong = pick(others,3);
-    var opts = shuffle(wrong.concat([v.en]));
-    return {
-      type:"vocab", key: v.id, promptJp: v.jp, romaji: v.romaji, answer: v.en,
-      choices: opts.map(function(o){ return {text:o, correct:o===v.en}; })
-    };
+    var wrong = pick(pool.filter(function(p){ return p.id!==v.id; }).map(function(p){ return p.en; }),3);
+    return { type:"vocab", key:v.id, promptJp:v.jp, sub:v.romaji, answer:v.en,
+      choices: shuffle(wrong.concat([v.en])).map(function(o){ return {text:o, correct:o===v.en}; }) };
   }
 
   function buildSession(mode, size){
     var items = [];
-    if(mode==="hiragana" || mode==="mixed"){
-      var due = kanaDueList(HIRAGANA);
-      var unlocked = kanaUnlockedList(HIRAGANA);
-      var src = due.length ? due : unlocked;
-      pick(src, mode==="mixed"?Math.ceil(size/3):size).forEach(function(p){ items.push(buildKanaItem(p, unlocked)); });
+    function addKana(list, n){
+      var due = kanaDueList(list), unlocked = kanaUnlockedList(list);
+      pick(due.length?due:unlocked, n).forEach(function(p){ items.push(buildKanaItem(p, unlocked)); });
     }
-    if(mode==="katakana" || mode==="mixed"){
-      var due2 = kanaDueList(KATAKANA);
-      var unlocked2 = kanaUnlockedList(KATAKANA);
-      var src2 = due2.length ? due2 : unlocked2;
-      pick(src2, mode==="mixed"?Math.ceil(size/3):size).forEach(function(p){ items.push(buildKanaItem(p, unlocked2)); });
-    }
-    if(mode==="vocab" || mode==="mixed"){
-      var due3 = vocabDueList();
-      var src3 = due3.length ? due3 : VOCAB;
-      pick(src3, mode==="mixed"?Math.ceil(size/3):size).forEach(function(v){ items.push(buildVocabItem(v, VOCAB)); });
+    if(mode==="hiragana"||mode==="mixed") addKana(HIRAGANA, mode==="mixed"?Math.ceil(size/3):size);
+    if(mode==="katakana"||mode==="mixed") addKana(KATAKANA, mode==="mixed"?Math.ceil(size/3):size);
+    if(mode==="vocab"||mode==="mixed"){
+      var due = vocabDueList();
+      pick(due.length?due:VOCAB, mode==="mixed"?Math.ceil(size/3):size).forEach(function(v){ items.push(buildVocabItem(v, VOCAB)); });
     }
     return shuffle(items).slice(0,size);
   }
 
   function startSession(mode, size, label){
     var queue = buildSession(mode, size);
-    if(queue.length===0){
-      sessionState = {empty:true, label:label};
-    }else{
-      sessionState = {
-        mode:mode, label:label, queue:queue, idx:0, correct:0,
-        startXp:S.xp, answered:false
-      };
-    }
-    view = "session";
-    render();
+    sessionState = queue.length
+      ? { mode:mode, label:label, queue:queue, idx:0, correct:0, startXp:S.xp, answered:false }
+      : { empty:true, label:label };
+    view = "session"; render();
   }
 
   function startChunkSession(idx){
-    var node = CURRICULUM[idx];
-    if(!node) return;
-    var pool = node.type==="kana" ? (node.set==="hiragana"?HIRAGANA:KATAKANA) : VOCAB;
-    var items = nodeRaw(node).map(function(r){ return node.type==="kana" ? buildKanaItem(r,pool) : buildVocabItem(r,pool); });
-    sessionState = { mode:"chunk", label:node.label, queue: shuffle(items), idx:0, correct:0, startXp:S.xp, answered:false };
-    view = "session";
-    render();
+    var n = CURRICULUM[idx]; if(!n) return;
+    var pool = n.type==="kana" ? (n.set==="hiragana"?HIRAGANA:KATAKANA) : VOCAB;
+    var items = nodeRaw(n).map(function(r){ return n.type==="kana" ? buildKanaItem(r,pool) : buildVocabItem(r,pool); });
+    sessionState = { mode:"chunk", label:n.label, queue:shuffle(items), idx:0, correct:0, startXp:S.xp, answered:false };
+    view = "session"; render();
   }
 
+  function answerChoice(i){
+    var s = sessionState;
+    if(!s || s.answered) return;
+    var item = s.queue[s.idx], good = item.choices[i].correct;
+    s.answered = true;
+    if(good) s.correct++;
+    recordAnswer(item.type==="kana"?"kana":"vocab", item.key, good);
+    var btns = document.querySelectorAll("#choicesWrap .choice");
+    Array.prototype.forEach.call(btns, function(b,j){
+      b.disabled = true;
+      if(item.choices[j].correct) b.classList.add("correct");
+      else if(j===i) b.classList.add("wrong");
+    });
+    reactMascot(document.querySelector(".session .mascot"), good);
+    chime(good); haptic(good?15:[12,40,12]);
+    setTimeout(function(){
+      s.idx++; s.answered=false;
+      if(s.idx>=s.queue.length){ view="summary"; }
+      render();
+      if(s.idx>=s.queue.length && !reduceMotion) confetti();
+    }, 700);
+  }
+
+  // ---------------- trace ----------------
   function startTrace(setName){
-    var list = setName==="hiragana" ? HIRAGANA : KATAKANA;
+    var list = setName==="hiragana"?HIRAGANA:KATAKANA;
     var pool = kanaUnlockedList(list);
-    if(pool.length===0) pool = list.slice(0,5);
-    traceState = { list: pick(pool, Math.min(8, pool.length)), idx:0, setName:setName };
-    view = "trace";
-    render();
+    if(!pool.length) pool = list.slice(0,5);
+    traceState = { list:pick(pool,Math.min(8,pool.length)), idx:0 };
+    view = "trace"; render();
   }
-
   function renderTrace(){
     var t = traceState;
-    if(!t){ return '<div class="notice">Nothing to trace yet.</div>'; }
+    if(!t) return '<div class="notice">Nothing to trace yet.</div>';
     var pair = t.list[t.idx];
-    var pct = Math.round((t.idx/t.list.length)*100);
     return '<div class="session">'+
-      '<button class="session-exit" data-nav="home">✕ Exit</button>'+
-      '<div class="session-progress" style="width:100%"><div style="width:'+pct+'%"></div></div>'+
-      mascotSvg(48)+
-      '<div class="mission-sub">Trace the character for <strong class="jp" style="color:var(--ink);font-size:1.1rem">'+esc(pair[1])+'</strong></div>'+
+      '<div class="session-top"><button class="session-exit" data-nav="home">✕</button>'+
+        '<div class="session-progress"><div style="width:'+Math.round(t.idx/t.list.length*100)+'%"></div></div></div>'+
+      '<div class="prompt-sub">Trace the character for <b style="color:var(--ink)">'+esc(pair[1])+'</b></div>'+
       '<canvas id="traceCanvas" width="300" height="300" class="trace-canvas"></canvas>'+
-      '<button class="speak-btn" data-speak="'+esc(pair[0])+'">🔊</button>'+
-      '<div class="btn-row" style="width:100%">'+
+      '<div class="phrase-when" style="max-width:19rem"><b>💡</b> '+esc(pair[2])+'</div>'+
+      '<div class="session-spacer"></div>'+
+      '<div class="btn-row" style="max-width:19rem">'+
         '<button class="btn btn-ghost" id="traceClear" type="button">Clear</button>'+
         '<button class="btn btn-primary" id="traceNext" type="button">Got it →</button>'+
-      '</div>'+
-    '</div>';
+      '</div></div>';
   }
-
   function traceAfterRender(){
-    var t = traceState;
-    var canvas = document.getElementById("traceCanvas");
+    var t = traceState, canvas = document.getElementById("traceCanvas");
     if(!t || !canvas) return;
-    var ctx = canvas.getContext("2d");
-    var w = canvas.width, h = canvas.height;
+    var ctx = canvas.getContext("2d"), w=canvas.width, h=canvas.height;
     var css = getComputedStyle(document.documentElement);
-
     function drawGuide(){
       ctx.clearRect(0,0,w,h);
       ctx.fillStyle = css.getPropertyValue("--line-strong");
       ctx.font = Math.round(h*0.62)+"px 'Yu Gothic','Hiragino Sans','Noto Sans JP','MS Gothic',sans-serif";
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(t.list[t.idx][0], w/2, h/2 + h*0.03);
+      ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.fillText(t.list[t.idx][0], w/2, h/2+h*0.03);
     }
     drawGuide();
     ctx.strokeStyle = css.getPropertyValue("--accent");
-    ctx.lineWidth = 12; ctx.lineCap = "round"; ctx.lineJoin = "round";
-
-    var drawing = false, lastX = 0, lastY = 0;
-    function pos(ev){
-      var r = canvas.getBoundingClientRect();
-      return { x: (ev.clientX-r.left)*(w/r.width), y: (ev.clientY-r.top)*(h/r.height) };
-    }
-    function start(ev){ drawing = true; var p = pos(ev); lastX=p.x; lastY=p.y; ev.preventDefault(); }
-    function move(ev){
+    ctx.lineWidth=12; ctx.lineCap="round"; ctx.lineJoin="round";
+    var drawing=false, lx=0, ly=0;
+    function pos(ev){ var r=canvas.getBoundingClientRect(); return {x:(ev.clientX-r.left)*(w/r.width), y:(ev.clientY-r.top)*(h/r.height)}; }
+    canvas.onpointerdown = function(ev){ drawing=true; var p=pos(ev); lx=p.x; ly=p.y; ev.preventDefault(); };
+    canvas.onpointermove = function(ev){
       if(!drawing) return;
-      var p = pos(ev);
-      ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(p.x,p.y); ctx.stroke();
-      lastX=p.x; lastY=p.y; ev.preventDefault();
-    }
-    function stop(){ drawing = false; }
-    canvas.onpointerdown = start;
-    canvas.onpointermove = move;
-    canvas.onpointerup = stop;
-    canvas.onpointerleave = stop;
-    canvas.onpointercancel = stop;
-
-    document.getElementById("traceClear").onclick = function(){ drawGuide(); };
+      var p=pos(ev);
+      ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(p.x,p.y); ctx.stroke();
+      lx=p.x; ly=p.y; ev.preventDefault();
+    };
+    canvas.onpointerup = canvas.onpointerleave = canvas.onpointercancel = function(){ drawing=false; };
+    document.getElementById("traceClear").onclick = drawGuide;
     document.getElementById("traceNext").onclick = function(){
-      S.xp += 4; persist();
-      chime(true);
+      S.xp += 4; persist(); chime(true); haptic(15);
       t.idx++;
-      if(t.idx >= t.list.length){
-        var n = t.list.length;
-        traceState = null;
-        view = "summary";
-        sessionState = { kind:"trace", count:n, startXp: S.xp-4*n, label:"Writing practice" };
-        render();
-        if(!reduceMotion) confetti();
-        return;
+      if(t.idx>=t.list.length){
+        var n=t.list.length;
+        traceState=null; view="summary";
+        sessionState={ kind:"trace", count:n, startXp:S.xp-4*n, label:"Writing practice" };
+        render(); if(!reduceMotion) confetti(); return;
       }
       render();
     };
   }
 
+  // ---------------- swipe deck ----------------
   function startSwipe(){
-    var due = vocabDueList();
-    var src = due.length ? due : VOCAB;
+    var due = vocabDueList(), src = due.length?due:VOCAB;
     var queue = pick(src, Math.min(10, src.length));
     swipeState = queue.length ? { queue:queue, idx:0, correct:0, startXp:S.xp, flipped:false } : { empty:true };
-    view = "swipe";
-    render();
+    view = "swipe"; render();
   }
-
   function renderSwipe(){
     var s = swipeState;
     if(!s || s.empty){
-      return '<div class="summary">'+mascotSvg(72)+'<h2>All caught up!</h2><p class="mission-sub">No words due for review right now.</p>'+
+      return '<div class="summary">'+mascotSvg(72)+'<h2>All caught up!</h2>'+
+        '<p class="prompt-sub">No words due right now.</p>'+
         '<button class="btn btn-primary" data-nav="learn">Back to Learn</button></div>';
     }
     var item = s.queue[s.idx];
-    var pct = Math.round((s.idx/s.queue.length)*100);
     return '<div class="session">'+
-      '<button class="session-exit" data-nav="home">✕ Exit</button>'+
-      '<div class="session-progress" style="width:100%"><div style="width:'+pct+'%"></div></div>'+
-      mascotSvg(40)+
-      '<div class="swipe-stack"><div class="swipe-card" id="swipeCard">'+
-        '<div class="swipe-card-inner" id="swipeCardInner">'+
-          '<div class="swipe-card-face front">'+
-            '<div class="jp" style="font-size:2.6rem;font-weight:800">'+esc(item.jp)+'</div>'+
-            '<div class="mission-sub">'+esc(item.romaji)+'</div>'+
-            '<div class="swipe-hint">Tap to reveal meaning</div>'+
-          '</div>'+
-          '<div class="swipe-card-face back">'+
-            '<div class="jp" style="font-size:1.2rem;color:var(--ink-soft)">'+esc(item.jp)+'</div>'+
-            '<div style="font-size:1.7rem;font-weight:800;margin-top:0.6rem">'+esc(item.en)+'</div>'+
-            '<div class="swipe-hint">Swipe or choose below</div>'+
-          '</div>'+
+      '<div class="session-top"><button class="session-exit" data-nav="home">✕</button>'+
+        '<div class="session-progress"><div style="width:'+Math.round(s.idx/s.queue.length*100)+'%"></div></div></div>'+
+      '<div class="swipe-stack"><div class="swipe-card" id="swipeCard"><div class="swipe-card-inner">'+
+        '<div class="swipe-card-face front">'+
+          '<div class="jp" style="font-size:2.8rem;font-weight:800">'+esc(item.jp)+'</div>'+
+          '<div class="prompt-sub">'+esc(item.romaji)+'</div>'+
+          '<div class="swipe-hint">Tap to reveal</div>'+
         '</div>'+
-      '</div></div>'+
-      '<div class="btn-row" style="width:100%;max-width:19rem">'+
-        '<button class="btn btn-ghost" id="swipeNo" type="button">✗ Still learning</button>'+
+        '<div class="swipe-card-face back">'+
+          '<div class="jp" style="font-size:1.25rem;color:var(--ink-soft)">'+esc(item.jp)+'</div>'+
+          '<div style="font-size:1.8rem;font-weight:800;margin-top:0.5rem">'+esc(item.en)+'</div>'+
+          '<div class="swipe-hint">Swipe or choose</div>'+
+        '</div>'+
+      '</div></div></div>'+
+      '<button class="speak-btn" data-speak="'+esc(item.jp)+'">🔊</button>'+
+      '<div class="session-spacer"></div>'+
+      '<div class="btn-row" style="max-width:21rem">'+
+        '<button class="btn btn-ghost" id="swipeNo" type="button">✗ Learning</button>'+
         '<button class="btn btn-primary" id="swipeYes" type="button">✓ Got it</button>'+
-      '</div>'+
-    '</div>';
+      '</div></div>';
   }
-
   function swipeAfterRender(){
-    var s = swipeState;
-    var card = document.getElementById("swipeCard");
+    var s = swipeState, card = document.getElementById("swipeCard");
     if(!s || s.empty || !card) return;
-
-    function setFlip(v){ s.flipped = v; card.classList.toggle("flipped", v); }
+    function setFlip(v){ s.flipped=v; card.classList.toggle("flipped", v); }
     card.onclick = function(){ if(!s.flipped) setFlip(true); };
-
-    var startX = 0, dx = 0, dragging = false;
-    function down(ev){
+    var startX=0, dx=0, dragging=false;
+    card.onpointerdown = function(ev){
       if(!s.flipped) return;
-      dragging = true; startX = ev.clientX; dx = 0;
-      card.style.transition = "none";
+      dragging=true; startX=ev.clientX; dx=0; card.style.transition="none";
       if(card.setPointerCapture){ try{ card.setPointerCapture(ev.pointerId); }catch(e){} }
-    }
-    function move(ev){
+    };
+    card.onpointermove = function(ev){
       if(!dragging) return;
-      dx = ev.clientX - startX;
+      dx = ev.clientX-startX;
       card.style.transform = "translateX("+dx+"px) rotate("+(dx/18)+"deg)";
-    }
-    function up(){
+    };
+    card.onpointerup = card.onpointercancel = function(){
       if(!dragging) return;
-      dragging = false;
-      card.style.transition = "";
-      if(Math.abs(dx) > 90) commit(dx>0);
-      else card.style.transform = "";
-    }
-    card.onpointerdown = down;
-    card.onpointermove = move;
-    card.onpointerup = up;
-    card.onpointercancel = up;
-
+      dragging=false; card.style.transition="";
+      if(Math.abs(dx)>90) commit(dx>0); else card.style.transform="";
+    };
     function commit(good){
-      var item = s.queue[s.idx];
-      recordAnswer("vocab", item.id, good);
+      recordAnswer("vocab", s.queue[s.idx].id, good);
       if(good) s.correct++;
-      chime(good);
-      haptic(good ? 15 : [12,40,12]);
+      chime(good); haptic(good?15:[12,40,12]);
       card.style.transform = "translateX("+(good?620:-620)+"px) rotate("+(good?28:-28)+"deg)";
       card.style.opacity = "0";
       setTimeout(function(){
         s.idx++;
-        if(s.idx >= s.queue.length){
-          view = "summary";
-          sessionState = { mode:"swipe", queue:s.queue, correct:s.correct, startXp:s.startXp, label:"Vocabulary" };
-          swipeState = null;
-          render();
+        if(s.idx>=s.queue.length){
+          view="summary";
+          sessionState = { queue:s.queue, correct:s.correct, startXp:s.startXp, label:"Vocabulary" };
+          swipeState=null; render();
           if(!reduceMotion) confetti();
           return;
         }
-        s.flipped = false;
-        render();
-      }, 220);
+        s.flipped=false; render();
+      },220);
     }
-
-    document.getElementById("swipeYes").onclick = function(){ if(s.flipped) commit(true); else setFlip(true); };
-    document.getElementById("swipeNo").onclick = function(){ if(s.flipped) commit(false); else setFlip(true); };
+    document.getElementById("swipeYes").onclick = function(){ s.flipped?commit(true):setFlip(true); };
+    document.getElementById("swipeNo").onclick = function(){ s.flipped?commit(false):setFlip(true); };
   }
 
-  function answerChoice(choiceIdx){
-    var s = sessionState;
-    if(!s || s.answered) return;
-    var item = s.queue[s.idx];
-    var choice = item.choices[choiceIdx];
-    s.answered = true;
-    var good = choice.correct;
-    if(good) s.correct++;
-    recordAnswer(item.type==="kana"?"kana":"vocab", item.key, good);
-    renderSessionFeedback(choiceIdx, good);
-    setTimeout(function(){
-      s.idx++;
-      s.answered = false;
-      if(s.idx >= s.queue.length){
-        view = "summary";
-      }
-      render();
-      if(s.idx >= s.queue.length && !reduceMotion) confetti();
-    }, 700);
+  // ---------------- kana detail sheet ----------------
+  function openSheet(setName, char){
+    var list = setName==="hiragana"?HIRAGANA:KATAKANA;
+    var pair = list.filter(function(p){ return p[0]===char; })[0];
+    if(!pair) return;
+    sheetState = { set:setName, pair:pair };
+    renderSheet();
+    speak(char);
+  }
+  function closeSheet(){ sheetState=null; renderSheet(); }
+  function renderSheet(){
+    var root = document.getElementById("sheetRoot");
+    if(!sheetState){ root.innerHTML=""; return; }
+    var p = sheetState.pair;
+    var e = S.kana[p[0]];
+    var status = isMastered(e) ? "Mastered" : (e&&e.seen ? "Box "+e.box+" of 5" : "Not started");
+    root.innerHTML =
+      '<div class="sheet-backdrop" data-sheet="close"></div>'+
+      '<div class="sheet">'+
+        '<div class="sheet-grab"></div>'+
+        '<div class="sheet-kana jp">'+esc(p[0])+'</div>'+
+        '<div class="sheet-romaji">'+esc(p[1])+' · '+status+'</div>'+
+        '<div class="sheet-mnemonic"><b>Memory hook</b>'+esc(p[2])+'</div>'+
+        '<div class="btn-row" style="margin-bottom:0">'+
+          '<button class="btn btn-ghost" data-speak="'+esc(p[0])+'">🔊 Hear it</button>'+
+          '<button class="btn btn-primary" data-action="trace-'+sheetState.set+'">✏️ Practise</button>'+
+        '</div>'+
+      '</div>';
   }
 
+  // ---------------- capabilities / state ----------------
   function initCapabilities(){
-    if(!window.claude){ return Promise.resolve(); }
+    if(!window.claude) return Promise.resolve();
     return Promise.all([
       claude.use("db").catch(function(){return null;}),
       claude.use("user").catch(function(){return null;}),
       claude.use("sample").catch(function(){return null;})
     ]).then(function(r){
-      claudeDb = r[0]; claudeUser = r[1]; claudeSample = r[2];
-      if(claudeDb && claudeUser){
-        return claudeUser.id().then(function(id){ uid = id; });
-      }
+      claudeDb=r[0]; claudeUser=r[1]; claudeSample=r[2];
+      if(claudeDb && claudeUser) return claudeUser.id().then(function(id){ uid=id; });
     });
   }
-
   function loadState(){
     if(claudeDb && claudeUser && uid){
       stateRef = claudeDb.doc("data/users/"+uid+"/profile");
       return stateRef.get().then(function(snap){
         S = normalizeState(snap.exists ? snap.data() : null);
       }).catch(function(){ S = defaultState(); });
-    }else{
-      var raw = null;
-      try{ raw = localStorage.getItem("nihongo_dojo_state"); }catch(e){}
-      S = normalizeState(raw ? JSON.parse(raw) : null);
-      return Promise.resolve();
     }
+    var raw=null;
+    try{ raw = localStorage.getItem("nihongo_dojo_state"); }catch(e){}
+    S = normalizeState(raw ? JSON.parse(raw) : null);
+    return Promise.resolve();
   }
-
   function applyDailyStreak(){
     var today = todayStr();
     if(S.lastActiveDate===today) return;
     var y = new Date(); y.setDate(y.getDate()-1);
-    if(S.lastActiveDate===todayStr(y)) S.streak++;
-    else S.streak = 1;
+    S.streak = (S.lastActiveDate===todayStr(y)) ? S.streak+1 : 1;
     S.lastActiveDate = today;
     persist();
   }
 
   // ---------------- render ----------------
-
-  function setView(v){ view = v; sessionState=null; traceState=null; swipeState=null; render(); }
+  function setView(v){ view=v; sessionState=null; traceState=null; swipeState=null; render(); }
 
   function render(){
     var root = document.getElementById("app");
@@ -1050,444 +1154,405 @@
     else if(view==="trace") html = renderTrace();
     else if(view==="swipe") html = renderSwipe();
     root.innerHTML = html;
-    root.classList.remove("view-fade");
-    void root.offsetWidth;
-    root.classList.add("view-fade");
-    renderTabbar();
-    attachHandlers();
+    root.classList.remove("view-fade"); void root.offsetWidth; root.classList.add("view-fade");
+    document.getElementById("chipStreak").textContent = "🔥 "+S.streak;
+    document.getElementById("chipLevel").textContent = "⭐ Lv"+level();
+    renderTabbar(); attachHandlers();
     if(view==="talk") talkAfterRender();
     if(view==="trace") traceAfterRender();
     if(view==="swipe") swipeAfterRender();
+    window.scrollTo(0,0);
   }
 
   function renderTabbar(){
-    var bar = document.getElementById("tabbar");
     var tabs = [
       {id:"home", ic:"🏠", lbl:"Home"},
       {id:"learn", ic:"📖", lbl:"Learn"},
       {id:"talk", ic:"💬", lbl:"Talk"},
       {id:"progress", ic:"📊", lbl:"Stats"}
     ];
-    bar.innerHTML = tabs.map(function(t){
-      var active = (view===t.id) || ((view==="session"||view==="summary"||view==="trace"||view==="swipe") && t.id==="learn");
-      return '<button class="navbtn'+(active?" active":"")+'" data-nav="'+t.id+'"><span class="ic">'+t.ic+"</span>"+t.lbl+"</button>";
+    document.getElementById("tabbar").innerHTML = tabs.map(function(t){
+      var sub = (view==="session"||view==="summary"||view==="trace"||view==="swipe");
+      var active = view===t.id || (sub && t.id==="learn");
+      return '<button class="navbtn'+(active?" active":"")+'" data-nav="'+t.id+'"><span class="ic">'+t.ic+'</span>'+t.lbl+'</button>';
     }).join("");
   }
 
-  function renderPath(){
-    var nodes = CURRICULUM;
-    var states = nodes.map(function(n, i){
-      if(!nodeUnlocked(nodes, i)) return "locked";
-      if(nodeDone(n)) return "done";
-      return "open";
-    });
-    var currentIdx = states.indexOf("open");
-    if(currentIdx===-1) currentIdx = nodes.length-1;
-    var startIdx = Math.max(0, currentIdx-1);
-    var endIdx = Math.min(nodes.length, currentIdx+4);
-    var hiddenBefore = startIdx;
-    var hiddenAfter = nodes.length - endIdx;
+  function currentNodeIdx(){
+    for(var i=0;i<CURRICULUM.length;i++){
+      if(nodeUnlocked(CURRICULUM,i) && !nodeDone(CURRICULUM[i])) return i;
+    }
+    return CURRICULUM.length-1;
+  }
 
+  function phraseOfDay(){
+    var seed = 0, t = todayStr();
+    for(var i=0;i<t.length;i++) seed = (seed*31 + t.charCodeAt(i)) >>> 0;
+    return PHRASES[seed % PHRASES.length];
+  }
+
+  function renderPath(){
+    var nodes = CURRICULUM, cur = currentNodeIdx();
+    var start = Math.max(0, cur-1), end = Math.min(nodes.length, cur+3);
     var rows = "";
-    if(hiddenBefore>0){
-      rows += '<div class="path-node-row odd"><div class="path-node done" style="width:2.6rem;height:2.6rem;font-size:1rem;opacity:0.6">✓</div>'+
-        '<div class="path-node-label">'+hiddenBefore+' lesson'+(hiddenBefore===1?"":"s")+' completed</div></div>';
+    if(start>0){
+      rows += '<div class="path-node-row odd"><div class="path-node done" style="width:2.8rem;height:2.8rem;font-size:1rem;opacity:.6">✓</div>'+
+        '<div class="path-node-label">'+start+' done</div></div>';
     }
-    for(var i=startIdx;i<endIdx;i++){
+    for(var i=start;i<end;i++){
       var n = nodes[i];
-      var st = states[i];
-      if(st==="open"){ st = (i===currentIdx) ? "current" : "available"; }
+      var st = !nodeUnlocked(nodes,i) ? "locked" : nodeDone(n) ? "done" : (i===cur ? "current" : "available");
       var icon = n.type==="kana" ? esc(nodeRaw(n)[0][0]) : "語";
-      var rowCls = i%2===0 ? "odd" : "even";
-      var clickable = st!=="locked";
-      var inner = st==="done" ? "✓" : st==="locked" ? "🔒" : '<span class="jp">'+icon+"</span>";
-      rows += '<div class="path-node-row '+rowCls+'">'+
-          '<button class="path-node '+st+'" '+(clickable?'data-chunk="'+i+'"':'')+'>'+inner+'</button>'+
-          '<div class="path-node-label">'+esc(n.label)+(st==="current"?' <strong style="color:var(--accent)">· start here</strong>':'')+'</div>'+
-        '</div>';
+      var inner = st==="done" ? "✓" : st==="locked" ? "🔒" : '<span class="jp">'+icon+'</span>';
+      rows += '<div class="path-node-row '+(i%2===0?"odd":"even")+'">'+
+        '<button class="path-node '+st+'"'+(st!=="locked"?' data-chunk="'+i+'"':'')+'>'+inner+'</button>'+
+        '<div class="path-node-label">'+esc(n.label)+'</div></div>';
     }
-    if(hiddenAfter>0){
-      rows += '<div class="path-node-row even"><div class="path-node locked" style="width:2.6rem;height:2.6rem;font-size:0.85rem">+'+hiddenAfter+'</div>'+
-        '<div class="path-node-label">more lessons ahead</div></div>';
+    var left = nodes.length-end;
+    if(left>0){
+      rows += '<div class="path-node-row even"><div class="path-node locked" style="width:2.8rem;height:2.8rem;font-size:.8rem">+'+left+'</div>'+
+        '<div class="path-node-label">ahead</div></div>';
     }
     return '<div class="path-wrap"><div class="path-line"></div><div class="path-nodes">'+rows+'</div></div>';
   }
 
   function renderRegions(){
     var lv = level();
-    var cards = REGIONS.map(function(r){
-      var unlocked = lv >= r.req;
-      return '<div class="region-card'+(unlocked?"":" locked")+'" style="background:'+r.grad+'" '+(unlocked?'data-nav="learn"':'')+'>'+
-        '<div class="region-mountain"></div>'+
-        (unlocked?'':'<div class="region-lock">🔒</div>')+
-        '<div class="region-info">'+
-          '<div class="region-name">'+esc(r.name)+'</div>'+
+    return '<div class="section-label">Discover Japan</div><div class="region-scroll">'+
+      REGIONS.map(function(r){
+        var open = lv>=r.req;
+        return '<div class="region-card'+(open?"":" locked")+'" style="background:'+r.grad+'"'+(open?' data-nav="learn"':'')+'>'+
+          '<div class="region-mountain"></div>'+(open?'':'<div class="region-lock">🔒</div>')+
+          '<div class="region-info"><div class="region-name">'+esc(r.name)+'</div>'+
           '<div class="region-theme">'+esc(r.theme)+'</div>'+
-          '<div class="region-badge">'+(unlocked?"Explore →":"Unlocks at Lv"+r.req)+'</div>'+
-        '</div>'+
-      '</div>';
-    }).join("");
-    return '<div class="section-label">Discover Japan</div><div class="region-scroll">'+cards+'</div>';
-  }
-
-  function homeStats(){
-    var dueKanaH = kanaDueList(HIRAGANA).length;
-    var dueKanaK = kanaDueList(KATAKANA).length;
-    var dueVocab = vocabDueList().length;
-    var masteredKana = HIRAGANA.concat(KATAKANA).filter(function(p){ return isMastered(S.kana[p[0]]); }).length;
-    var masteredVocab = VOCAB.filter(function(v){ return isMastered(S.vocab[v.id]); }).length;
-    return { dueKanaH:dueKanaH, dueKanaK:dueKanaK, dueVocab:dueVocab, totalDue:dueKanaH+dueKanaK+dueVocab, masteredKana:masteredKana, masteredVocab:masteredVocab };
+          '<div class="region-badge">'+(open?"Explore →":"Lv"+r.req+" to unlock")+'</div></div></div>';
+      }).join("")+'</div>';
   }
 
   function renderHome(){
-    var st = homeStats();
+    var cur = currentNodeIdx(), node = CURRICULUM[cur];
+    var pct = nodeProgress(node);
+    var ph = phraseOfDay();
+    var masteredKana = HIRAGANA.concat(KATAKANA).filter(function(p){ return isMastered(S.kana[p[0]]); }).length;
+    var masteredVocab = VOCAB.filter(function(v){ return isMastered(S.vocab[v.id]); }).length;
+    var totalDue = kanaDueList(HIRAGANA).length + kanaDueList(KATAKANA).length + vocabDueList().length;
 
-    var mobile = ''+
-      '<div class="home-mobile">'+
-      (S.xp===0 ? '<div class="banner">Welcome! Follow the path below — tap the glowing node to start.</div>' : '')+
-      '<div class="section-label">Your path</div>'+
-      renderPath()+
-      '<button class="btn btn-primary btn-block" data-action="start-lazy" style="margin-top:0.5rem">⚡ Lazy Mode — 5 quick cards</button>'+
-      '<div class="quick-grid">'+
-        '<div class="quick-tile" data-nav="learn" data-learntab="hiragana"><span class="n">'+st.masteredKana+'/92</span><span class="l">Kana</span></div>'+
-        '<div class="quick-tile" data-action="swipe-vocab"><span class="n">'+st.masteredVocab+'/'+VOCAB.length+'</span><span class="l">Words</span></div>'+
-        '<div class="quick-tile" data-nav="talk"><span class="n">💬</span><span class="l">Talk</span></div>'+
-      '</div>'+
-      renderRegions()+
+    var mobile =
+      '<div class="mobile-only">'+
+        '<div class="hero">'+
+          '<div class="hero-eyebrow">'+(S.xp===0?"Start here":"Continue")+'</div>'+
+          '<div class="hero-title">'+esc(node.label)+'</div>'+
+          '<div class="hero-sub">'+(node.type==="kana"?"Learn 5 new characters":"Learn 8 new words and meanings")+'</div>'+
+          '<div class="hero-bar"><div style="width:'+pct+'%"></div></div>'+
+          '<button class="btn btn-block" data-chunk="'+cur+'">'+(pct>0?"Continue":"Start")+' →</button>'+
+        '</div>'+
+
+        '<div class="section-label">Phrase of the day <span class="tag">Real Japanese</span></div>'+
+        '<div class="phrase-card">'+
+          '<div class="phrase-top">'+
+            '<div class="phrase-jp jp">'+esc(ph.jp)+'</div>'+
+            '<button class="speak-btn" data-speak="'+esc(ph.jp)+'">🔊</button>'+
+          '</div>'+
+          '<div class="phrase-romaji">'+esc(ph.romaji)+'</div>'+
+          '<div class="phrase-en">'+esc(ph.en)+'</div>'+
+          '<div class="phrase-when">'+esc(ph.when)+'</div>'+
+        '</div>'+
+
+        '<div class="section-label">Quick practice</div>'+
+        '<div class="action-row">'+
+          '<button class="action" data-action="start-lazy"><span class="ic">⚡</span>Lazy<span class="sub">5 cards</span></button>'+
+          '<button class="action" data-action="swipe-vocab"><span class="ic">👆</span>Cards<span class="sub">'+masteredVocab+'/'+VOCAB.length+'</span></button>'+
+          '<button class="action" data-action="trace-hiragana"><span class="ic">✏️</span>Write<span class="sub">trace</span></button>'+
+          '<button class="action" data-nav="talk"><span class="ic">💬</span>Talk<span class="sub">AI chat</span></button>'+
+          '<button class="action" data-action="start-daily"><span class="ic">🎯</span>Review<span class="sub">'+totalDue+' due</span></button>'+
+        '</div>'+
+
+        '<div class="section-label">Your path</div>'+
+        renderPath()+
+        renderRegions()+
       '</div>';
 
     var due = [
-      {label:"Hiragana", n:st.dueKanaH, action:"practice-hiragana"},
-      {label:"Katakana", n:st.dueKanaK, action:"practice-katakana"},
-      {label:"Vocabulary", n:st.dueVocab, action:"practice-vocab"}
+      {label:"Hiragana", n:kanaDueList(HIRAGANA).length, action:"practice-hiragana"},
+      {label:"Katakana", n:kanaDueList(KATAKANA).length, action:"practice-katakana"},
+      {label:"Vocabulary", n:vocabDueList().length, action:"practice-vocab"}
     ];
-    var desktop = ''+
-      '<div class="home-desktop">'+
-      (S.xp===0 ? '<div class="banner">Welcome. Your first lesson is Hiragana — start with the review table below.</div>' : '')+
-      '<div class="dash-grid">'+
-        '<div class="dash-card"><div class="big">🔥 '+S.streak+'</div><div class="lbl">Day streak</div></div>'+
-        '<div class="dash-card"><div class="big">Lv'+level()+'</div><div class="lbl">'+xpIntoLevel()+'/150 XP</div></div>'+
-        '<div class="dash-card"><div class="big">'+st.masteredKana+'/92</div><div class="lbl">Kana mastered</div></div>'+
-        '<div class="dash-card"><div class="big">'+st.masteredVocab+'/'+VOCAB.length+'</div><div class="lbl">Words mastered</div></div>'+
-      '</div>'+
-      '<div class="section-label">Due for review</div>'+
-      '<table class="due-table"><tbody>'+
-        due.map(function(d){
-          return '<tr><td>'+d.label+'</td><td class="cnt">'+d.n+' due</td><td style="text-align:right"><button class="go" data-action="'+d.action+'">Practice</button></td></tr>';
-        }).join("")+
-      '</tbody></table>'+
-      '<div class="stats-row" style="margin-top:1.25rem">'+
-        '<button class="btn btn-primary" data-action="start-daily">Start Daily Practice (10)</button>'+
-        '<button class="btn btn-ghost" data-action="start-lazy">Lazy Mode (5)</button>'+
-        '<button class="btn btn-ghost" data-nav="talk">Talk practice</button>'+
-      '</div>'+
+    var desktop =
+      '<div class="desktop-only">'+
+        '<div class="dash-grid">'+
+          '<div class="dash-card"><div class="big">🔥 '+S.streak+'</div><div class="lbl">Day streak</div></div>'+
+          '<div class="dash-card"><div class="big">Lv'+level()+'</div><div class="lbl">'+xpIntoLevel()+'/150 XP</div></div>'+
+          '<div class="dash-card"><div class="big">'+masteredKana+'/92</div><div class="lbl">Kana mastered</div></div>'+
+          '<div class="dash-card"><div class="big">'+masteredVocab+'/'+VOCAB.length+'</div><div class="lbl">Words mastered</div></div>'+
+        '</div>'+
+        '<div class="section-label">Up next</div>'+
+        '<div class="phrase-card" style="flex-direction:row;align-items:center;gap:1rem">'+
+          '<div style="flex:1"><div style="font-weight:800;font-size:1.1rem">'+esc(node.label)+'</div>'+
+          '<div style="color:var(--ink-soft);font-size:.9rem">'+pct+'% complete</div></div>'+
+          '<button class="btn btn-primary" data-chunk="'+cur+'">Continue →</button>'+
+        '</div>'+
+        '<div class="section-label">Due for review</div>'+
+        '<table class="due-table"><tbody>'+due.map(function(d){
+          return '<tr><td>'+d.label+'</td><td class="cnt">'+d.n+' due</td>'+
+            '<td style="text-align:right"><button class="go" data-action="'+d.action+'">Practice</button></td></tr>';
+        }).join("")+'</tbody></table>'+
+        '<div class="section-label">Phrase of the day</div>'+
+        '<div class="phrase-card">'+
+          '<div class="phrase-top"><div class="phrase-jp jp">'+esc(ph.jp)+'</div>'+
+          '<button class="speak-btn" data-speak="'+esc(ph.jp)+'">🔊</button></div>'+
+          '<div class="phrase-romaji">'+esc(ph.romaji)+'</div>'+
+          '<div class="phrase-en">'+esc(ph.en)+'</div>'+
+          '<div class="phrase-when">'+esc(ph.when)+'</div>'+
+        '</div>'+
+        '<div class="desk-actions">'+
+          '<button class="btn btn-primary" data-action="start-daily">Daily practice (10)</button>'+
+          '<button class="btn btn-ghost" data-action="start-lazy">Quick (5)</button>'+
+          '<button class="btn btn-ghost" data-nav="talk">Talk practice</button>'+
+        '</div>'+
       '</div>';
 
-    return '<div class="topbar">'+
-      '<div class="brand">'+mascotSvg(40)+'<h1>Nihongo Dojo</h1></div>'+
-      '<div class="stats-row">'+
-        '<div class="stat-pill pill-flame">🔥 '+S.streak+'</div>'+
-        '<div class="stat-pill pill-xp">⭐ Lv'+level()+'</div>'+
-      '</div>'+
-    '</div>'+ mobile + desktop;
+    return mobile + desktop;
   }
 
-  function kanaSectionHtml(list, setName, label){
-    var actionName = "practice-"+setName;
-    return '<div class="learn-section'+(learnTab===setName?" active":"")+'" data-sec="'+setName+'">'+
+  function kanaSection(list, setName, label){
+    return '<div class="learn-section'+(learnTab===setName?" active":"")+'">'+
       '<h3 class="learn-heading">'+label+'</h3>'+
       '<div class="btn-row">'+
-        '<button class="btn btn-primary" data-action="'+actionName+'">Practice</button>'+
+        '<button class="btn btn-primary" data-action="practice-'+setName+'">Practice</button>'+
         '<button class="btn btn-ghost" data-action="trace-'+setName+'">✏️ Trace</button>'+
       '</div>'+
-      '<div class="kgrid">'+list.map(function(pair, idx){
-        var unlocked = kanaUnlocked(list, idx);
-        var e = S.kana[pair[0]];
-        var boxCls = unlocked ? "b"+(e?e.box:0) : "";
-        return '<div class="ktile '+(unlocked?boxCls:"locked")+'" '+(unlocked?'data-speak="'+esc(pair[0])+'"':'')+'>'+
-          '<span class="c jp">'+(unlocked?esc(pair[0]):"🔒")+'</span>'+
-          (unlocked?'<span class="r">'+esc(pair[1])+'</span>':'')+
-        '</div>';
+      '<div class="kgrid">'+list.map(function(p,i){
+        var open = kanaUnlocked(list,i), e = S.kana[p[0]];
+        return '<div class="ktile '+(open?("b"+(e?e.box:0)):"locked")+'"'+
+          (open?' data-kana="'+esc(p[0])+'" data-kanaset="'+setName+'"':'')+'>'+
+          '<span class="c jp">'+(open?esc(p[0]):"🔒")+'</span>'+
+          (open?'<span class="r">'+esc(p[1])+'</span>':'')+'</div>';
       }).join("")+'</div>'+
+      '<div class="phrase-when" style="margin-top:1rem">Tap any character for its memory hook and sound.</div>'+
     '</div>';
   }
 
   function renderLearn(){
-    var tabsHtml = ["hiragana","katakana","vocab"].map(function(t){
-      var lbl = t==="hiragana"?"Hiragana":t==="katakana"?"Katakana":"Vocab";
-      return '<button class="tab'+(learnTab===t?" active":"")+'" data-learntab="'+t+'">'+lbl+"</button>";
-    }).join("");
+    var tabs = [["hiragana","あ Hira"],["katakana","ア Kata"],["vocab","語 Words"],["phrases","💬 Phrases"]];
+    var seg = '<div class="segmented">'+tabs.map(function(t){
+      return '<button class="'+(learnTab===t[0]?"active":"")+'" data-learntab="'+t[0]+'">'+t[1]+'</button>';
+    }).join("")+'</div>';
 
-    var vocabSection = '<div class="learn-section'+(learnTab==="vocab"?" active":"")+'" data-sec="vocab">'+
+    var vocabSection = '<div class="learn-section'+(learnTab==="vocab"?" active":"")+'">'+
       '<h3 class="learn-heading">Vocabulary</h3>'+
       '<div class="btn-row">'+
-        '<button class="btn btn-primary" data-action="practice-vocab">Practice Vocab</button>'+
-        '<button class="btn btn-ghost mobile-only" data-action="swipe-vocab">👆 Swipe Cards</button>'+
+        '<button class="btn btn-primary" data-action="practice-vocab">Practice</button>'+
+        '<button class="btn btn-ghost" data-action="swipe-vocab">👆 Cards</button>'+
       '</div>'+
       '<div class="vlist">'+VOCAB.map(function(v){
         var e = S.vocab[v.id];
-        var cls = isMastered(e) ? "mastered" : (isDue(e) ? "due" : "");
         return '<div class="vrow" data-speak="'+esc(v.jp)+'">'+
           '<div><div class="jp">'+esc(v.jp)+'</div><div class="romaji">'+esc(v.romaji)+'</div></div>'+
           '<div class="en">'+esc(v.en)+'</div>'+
-          '<div class="box-dot '+cls+'"></div>'+
-        '</div>';
-      }).join("")+'</div>'+
-    '</div>';
+          '<div class="box-dot '+(isMastered(e)?"mastered":(isDue(e)?"due":""))+'"></div></div>';
+      }).join("")+'</div></div>';
 
-    return '<div class="topbar"><div class="brand"><h1>Learn</h1></div></div>'+
-      '<div class="tabs">'+tabsHtml+'</div>'+
-      '<div class="learn-body">'+
-        '<div class="learn-col">'+
-          kanaSectionHtml(HIRAGANA,"hiragana","Hiragana")+
-          kanaSectionHtml(KATAKANA,"katakana","Katakana")+
-        '</div>'+
-        '<div class="learn-col">'+vocabSection+'</div>'+
-      '</div>';
+    var phraseSection = '<div class="learn-section'+(learnTab==="phrases"?" active":"")+'">'+
+      '<h3 class="learn-heading">Survival phrases</h3>'+
+      '<div class="phrase-when" style="margin-bottom:1rem">Real sentences you can use on day one. Tap to hear them.</div>'+
+      '<div class="plist">'+PHRASES.map(function(p){
+        return '<div class="prow" data-speak="'+esc(p.jp)+'">'+
+          '<div class="meta"><div class="sit">'+esc(p.sit)+'</div>'+
+          '<div class="jp">'+esc(p.jp)+'</div>'+
+          '<div class="en">'+esc(p.romaji)+' · '+esc(p.en)+'</div></div>'+
+          '<div class="speak-btn">🔊</div></div>';
+      }).join("")+'</div></div>';
+
+    return seg+'<div class="learn-body">'+
+      '<div>'+kanaSection(HIRAGANA,"hiragana","Hiragana")+kanaSection(KATAKANA,"katakana","Katakana")+'</div>'+
+      '<div>'+vocabSection+phraseSection+'</div></div>';
   }
 
   function renderSession(){
     var s = sessionState;
     if(!s || s.empty){
-      return '<div class="summary">'+mascotSvg(72)+'<h2>All caught up!</h2><p class="mission-sub">Nothing due right now in this set. Try another set or come back later.</p>'+
+      return '<div class="summary">'+mascotSvg(72)+'<h2>All caught up!</h2>'+
+        '<p class="prompt-sub">Nothing due in this set right now.</p>'+
         '<button class="btn btn-primary" data-nav="learn">Back to Learn</button></div>';
     }
     var item = s.queue[s.idx];
-    var pct = Math.round((s.idx/s.queue.length)*100);
-    var promptHtml = item.type==="kana"
-      ? '<div class="prompt-jp jp">'+esc(item.promptJp)+'</div>'
-      : '<div class="prompt-jp jp" style="font-size:2.4rem">'+esc(item.promptJp)+'</div><div class="mission-sub" style="text-align:center">'+esc(item.romaji)+'</div>';
-    return ''+
-    '<div class="session">'+
-      '<button class="session-exit" data-nav="home">✕ Exit</button>'+
-      '<div class="session-progress" style="width:100%"><div style="width:'+pct+'%"></div></div>'+
-      mascotSvg(48)+
-      promptHtml+
+    return '<div class="session">'+
+      '<div class="session-top"><button class="session-exit" data-nav="home">✕</button>'+
+        '<div class="session-progress"><div style="width:'+Math.round(s.idx/s.queue.length*100)+'%"></div></div></div>'+
+      mascotSvg(44)+
+      '<div class="prompt-jp jp"'+(item.type==="vocab"?' style="font-size:2.9rem"':'')+'>'+esc(item.promptJp)+'</div>'+
+      (item.sub?'<div class="prompt-sub">'+esc(item.sub)+'</div>':'')+
       '<button class="speak-btn" data-speak="'+esc(item.promptJp)+'">🔊</button>'+
-      '<div class="choices" id="choicesWrap">'+
-        item.choices.map(function(c,i){ return '<button class="choice" data-choice="'+i+'">'+esc(c.text)+"</button>"; }).join("")+
-      '</div>'+
-    '</div>';
-  }
-
-  function renderSessionFeedback(chosenIdx, good){
-    var s = sessionState;
-    var item = s.queue[s.idx];
-    var btns = document.querySelectorAll("#choicesWrap .choice");
-    btns.forEach(function(b,i){
-      b.disabled = true;
-      if(item.choices[i].correct) b.classList.add("correct");
-      else if(i===chosenIdx) b.classList.add("wrong");
-    });
-    reactMascot(document.querySelector(".session .mascot"), good);
-    chime(good);
-    haptic(good ? 15 : [12,40,12]);
+      '<div class="session-spacer"></div>'+
+      '<div class="choices" id="choicesWrap">'+item.choices.map(function(c,i){
+        return '<button class="choice" data-choice="'+i+'">'+esc(c.text)+'</button>';
+      }).join("")+'</div></div>';
   }
 
   function renderSummary(){
     var s = sessionState;
-    var earned = s ? (S.xp - s.startXp) : 0;
+    var earned = s ? S.xp-s.startXp : 0;
     var sub;
-    if(s && s.kind==="trace"){
-      sub = s.count+' character'+(s.count===1?"":"s")+' traced';
-    }else{
-      var acc = s && s.queue.length ? Math.round((s.correct/s.queue.length)*100) : 0;
-      sub = (s?s.correct:0)+'/'+(s?s.queue.length:0)+' correct · '+acc+'% accuracy';
+    if(s && s.kind==="trace") sub = s.count+' character'+(s.count===1?"":"s")+' traced';
+    else {
+      var acc = s && s.queue.length ? Math.round(s.correct/s.queue.length*100) : 0;
+      sub = (s?s.correct:0)+'/'+(s?s.queue.length:0)+' correct · '+acc+'%';
     }
-    return '<div class="summary">'+mascotSvg(80)+
+    return '<div class="summary">'+mascotSvg(88)+
       '<h2>Session complete!</h2>'+
       '<div class="xp-earned">+'+earned+' XP</div>'+
-      '<p class="mission-sub">'+sub+'</p>'+
-      '<button class="btn btn-primary btn-block" data-nav="home">Back to Home</button>'+
-    '</div>';
+      '<p class="prompt-sub">'+sub+'</p>'+
+      '<button class="btn btn-primary btn-block" data-nav="home">Back to Home</button></div>';
   }
 
   function renderProgress(){
     var allKana = HIRAGANA.concat(KATAKANA);
-    var boxCounts = [0,0,0,0,0,0];
-    allKana.forEach(function(p){ var e=S.kana[p[0]]; boxCounts[e?e.box:0]++; });
-    var vBoxCounts=[0,0,0,0,0,0];
-    VOCAB.forEach(function(v){ var e=S.vocab[v.id]; vBoxCounts[e?e.box:0]++; });
-    var labels=["New","Learning","Learning","Reviewing","Reviewing","Mastered"];
-    var colorFor = function(i){ return i<=0?"var(--line-strong)": i<3?"var(--gold)":"var(--jade)"; };
-
-    function bars(counts, total){
-      var rows = [0,3,5];
+    var kb=[0,0,0,0,0,0], vb=[0,0,0,0,0,0];
+    allKana.forEach(function(p){ var e=S.kana[p[0]]; kb[e?e.box:0]++; });
+    VOCAB.forEach(function(v){ var e=S.vocab[v.id]; vb[e?e.box:0]++; });
+    function bars(c, total){
       var groups = [
-        {lbl:"New", n:counts[0]},
-        {lbl:"Learning", n:counts[1]+counts[2]},
-        {lbl:"Reviewing", n:counts[3]+counts[4]},
-        {lbl:"Mastered", n:counts[5]}
+        {lbl:"New", n:c[0], col:"var(--line-strong)"},
+        {lbl:"Learning", n:c[1]+c[2], col:"var(--gold)"},
+        {lbl:"Reviewing", n:c[3]+c[4], col:"var(--jade-soft)"},
+        {lbl:"Mastered", n:c[5], col:"var(--jade)"}
       ];
       return '<div class="barlist">'+groups.map(function(g){
-        var pct = total? Math.round(g.n/total*100):0;
-        return '<div class="barrow"><div class="lbl">'+g.lbl+'</div><div class="track"><div class="fill" style="width:'+pct+'%;background:'+colorFor(g.lbl==="Mastered"?5:g.lbl==="New"?0:2)+'"></div></div><div class="val">'+g.n+'</div></div>';
+        return '<div class="barrow"><div class="lbl">'+g.lbl+'</div>'+
+          '<div class="track"><div class="fill" style="width:'+(total?Math.round(g.n/total*100):0)+'%;background:'+g.col+'"></div></div>'+
+          '<div class="val">'+g.n+'</div></div>';
       }).join("")+'</div>';
     }
-
-    return '<div class="topbar"><div class="brand"><h1>Progress</h1></div></div>'+
-      '<div class="stat-block">'+
+    return '<div class="stat-block">'+
         '<div class="stat-box"><div class="big">🔥 '+S.streak+'</div><div class="lbl">Day streak</div></div>'+
         '<div class="stat-box"><div class="big">⭐ '+S.xp+'</div><div class="lbl">Total XP · Level '+level()+'</div></div>'+
       '</div>'+
-      '<div class="section-label">Kana mastery ('+allKana.length+' characters)</div>'+
-      bars(boxCounts, allKana.length)+
-      '<div class="section-label">Vocabulary mastery ('+VOCAB.length+' words)</div>'+
-      bars(vBoxCounts, VOCAB.length);
+      '<div class="section-label">Kana mastery ('+allKana.length+')</div>'+bars(kb, allKana.length)+
+      '<div class="section-label">Vocabulary mastery ('+VOCAB.length+')</div>'+bars(vb, VOCAB.length)+
+      '<div class="section-label">Survival phrases</div>'+
+      '<div class="phrase-when">'+PHRASES.length+' everyday phrases available in Learn → Phrases. These are reference material, not drilled.</div>';
   }
 
+  // ---------------- talk ----------------
   function renderTalk(){
-    if(!talkState){
-      talkState = {personaId:"yuki", turns:[], loading:false, error:null, started:false};
-    }
+    if(!talkState) talkState = {personaId:"yuki", turns:[], loading:false, error:null, started:false};
     var t = talkState;
+    var row = '<div class="persona-row">'+PERSONAS.map(function(p){
+      return '<div class="persona-card'+(t.personaId===p.id?" active":"")+'"'+(claudeSample?' data-persona="'+p.id+'"':'')+'>'+
+        '<div class="av">'+p.avatar+'</div><div class="nm">'+p.name+'</div><div class="rl">'+esc(p.role)+'</div></div>';
+    }).join("")+'</div>';
     if(!claudeSample){
-      return '<div class="topbar"><div class="brand"><h1>Talk</h1></div></div>'+
-        '<div class="persona-row">'+PERSONAS.map(function(p){
-          return '<div class="persona-card"><div class="av">'+p.avatar+'</div><div class="nm">'+p.name+'</div><div class="rl">'+p.role+'</div></div>';
-        }).join("")+'</div>'+
-        '<div class="notice">AI conversation practice needs this app to be opened as a Claude artifact with Claude access allowed.</div>';
+      return row+'<div class="notice">AI conversation practice runs only when this app is opened as a Claude artifact with Claude access allowed.</div>';
     }
-    return '<div class="topbar"><div class="brand"><h1>Talk</h1></div></div>'+
-      '<div class="persona-row">'+PERSONAS.map(function(p){
-        return '<div class="persona-card'+(t.personaId===p.id?" active":"")+'" data-persona="'+p.id+'"><div class="av">'+p.avatar+'</div><div class="nm">'+p.name+'</div><div class="rl">'+esc(p.role)+'</div></div>';
-      }).join("")+'</div>'+
+    return row+
       '<div class="chat-log" id="chatLog"></div>'+
-      (t.error ? '<div class="banner" style="background:var(--accent-soft);border-color:var(--accent)">'+esc(t.error)+'</div>' : '')+
+      (t.error?'<div class="banner" style="background:var(--accent-soft);border-color:var(--accent)">'+esc(t.error)+'</div>':'')+
       '<form class="chat-form" id="chatForm">'+
-        '<input class="chat-input" id="chatInput" placeholder="Type in English or Japanese…" autocomplete="off" '+(t.loading?"disabled":"")+'>'+
-        '<button class="chat-send" type="submit" '+(t.loading?"disabled":"")+'>➤</button>'+
+        '<input class="chat-input" id="chatInput" placeholder="Type in English or Japanese…" autocomplete="off"'+(t.loading?" disabled":"")+'>'+
+        '<button class="chat-send" type="submit"'+(t.loading?" disabled":"")+'>➤</button>'+
       '</form>';
   }
-
-  function personaInstruction(persona){
-    return "You are "+persona.name+", a "+persona.role+" inside a Japanese conversation-practice app. "+
-      "Personality: "+persona.style+". The learner is a complete beginner (knows some hiragana and basic words). "+
+  function personaInstruction(p){
+    return "You are "+p.name+", a "+p.role+" inside a Japanese conversation-practice app. "+
+      "Personality: "+p.style+". The learner is a complete beginner (knows some hiragana and basic words). "+
       "Rules: reply mostly in very simple Japanese (N5 level, short sentences). After each Japanese sentence, add the romaji in parentheses and a short English translation in square brackets. "+
       "Keep replies to 2-4 short sentences total. If the learner's message has a Japanese mistake, gently show the corrected form first, then continue naturally. "+
       "Stay in character the whole time and end your reply with a simple follow-up question to keep the conversation going. "+
       "Begin the conversation now with a short in-character greeting.";
   }
-
   function talkAfterRender(){
     if(!claudeSample) return;
-    var log = document.getElementById("chatLog");
-    var t = talkState;
+    var log = document.getElementById("chatLog"), t = talkState;
     log.innerHTML = t.turns.map(function(m){
       return '<div class="bubble '+(m.role==="user"?"me":"them")+'">'+esc(m.content)+'</div>';
     }).join("");
     log.scrollTop = log.scrollHeight;
-    if(!t.started){
-      t.started = true;
-      startConversation();
-    }
+    if(!t.started){ t.started = true; startConversation(); }
     var form = document.getElementById("chatForm");
-    if(form){
-      form.onsubmit = function(ev){
-        ev.preventDefault();
-        var input = document.getElementById("chatInput");
-        var val = input.value.trim();
-        if(!val || t.loading) return;
-        input.value = "";
-        sendTalkMessage(val);
-      };
-    }
+    if(form) form.onsubmit = function(ev){
+      ev.preventDefault();
+      var input = document.getElementById("chatInput"), val = input.value.trim();
+      if(!val || t.loading) return;
+      input.value=""; sendTalkMessage(val);
+    };
   }
-
   function appendBubble(role, text){
     var log = document.getElementById("chatLog");
     var div = document.createElement("div");
     div.className = "bubble "+(role==="user"?"me":"them");
     div.textContent = text;
-    log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
+    log.appendChild(div); log.scrollTop = log.scrollHeight;
     return div;
   }
-
+  function runTalk(msgs, bubble){
+    var t = talkState;
+    return claudeSample(msgs, {
+      cache:false,
+      onText:function(u){ bubble.textContent = u.text; var l=document.getElementById("chatLog"); if(l) l.scrollTop=999999; }
+    }).then(function(res){
+      t.turns.push({role:"assistant", content:res.text});
+      t.loading=false; render();
+    }).catch(function(err){
+      t.loading=false; t.error=talkErrorMessage(err); bubble.remove(); render();
+    });
+  }
   function startConversation(){
-    var t = talkState;
-    var persona = PERSONAS.filter(function(p){return p.id===t.personaId;})[0];
+    var t = talkState, p = PERSONAS.filter(function(x){return x.id===t.personaId;})[0];
     t.loading = true;
-    var bubble = appendBubble("assistant", "…thinking…");
-    claudeSample([{role:"user", content: personaInstruction(persona)}], {
-      cache:false,
-      onText:function(u){ bubble.textContent = u.text; document.getElementById("chatLog").scrollTop = 999999; }
-    }).then(function(res){
-      t.turns.push({role:"assistant", content: res.text});
-      t.loading = false;
-      render();
-    }).catch(function(err){
-      t.loading = false;
-      t.error = talkErrorMessage(err);
-      bubble.remove();
-      render();
-    });
+    runTalk([{role:"user", content:personaInstruction(p)}], appendBubble("assistant","…thinking…"));
   }
-
   function sendTalkMessage(text){
-    var t = talkState;
-    var persona = PERSONAS.filter(function(p){return p.id===t.personaId;})[0];
+    var t = talkState, p = PERSONAS.filter(function(x){return x.id===t.personaId;})[0];
     t.turns.push({role:"user", content:text});
-    t.error = null;
-    t.loading = true;
+    t.error=null; t.loading=true;
     appendBubble("user", text);
-    var bubble = appendBubble("assistant", "…thinking…");
-    var msgs = [{role:"user", content: personaInstruction(persona)}].concat(t.turns);
-    claudeSample(msgs, {
-      cache:false,
-      onText:function(u){ bubble.textContent = u.text; document.getElementById("chatLog").scrollTop = 999999; }
-    }).then(function(res){
-      t.turns.push({role:"assistant", content: res.text});
-      t.loading = false;
-      S.xp += 5;
-      persist();
-      render();
-    }).catch(function(err){
-      t.loading = false;
-      t.error = talkErrorMessage(err);
-      bubble.remove();
-      render();
-    });
+    var bubble = appendBubble("assistant","…thinking…");
+    S.xp += 5; persist();
+    runTalk([{role:"user", content:personaInstruction(p)}].concat(t.turns), bubble);
   }
-
   function talkErrorMessage(err){
     var code = err && err.code;
-    if(code==="not_granted") return "Claude access was declined for this app. Allow it to chat with "+ (PERSONAS.filter(function(p){return p.id===talkState.personaId;})[0]||{}).name+".";
+    if(code==="not_granted") return "Claude access was declined for this app. Allow it to chat here.";
     if(code==="rate_limited") return "Too many messages right now — wait a moment and try again.";
     if(code==="session_expired") return "Please sign in again to continue chatting.";
     return "Something went wrong. Try sending that again.";
   }
-
   function switchPersona(id){
     talkState = {personaId:id, turns:[], loading:false, error:null, started:false};
     render();
   }
 
   // ---------------- events ----------------
-
   function attachHandlers(){
-    var root = document.getElementById("app");
-    root.addEventListener("click", onRootClick);
+    document.getElementById("app").addEventListener("click", onRootClick);
     document.getElementById("tabbar").addEventListener("click", onRootClick);
+    document.getElementById("sheetRoot").addEventListener("click", onRootClick);
   }
 
   function onRootClick(ev){
-    var el = ev.target.closest("[data-nav],[data-action],[data-speak],[data-choice],[data-learntab],[data-persona],[data-chunk]");
+    var el = ev.target.closest("[data-nav],[data-action],[data-speak],[data-choice],[data-learntab],[data-persona],[data-chunk],[data-kana],[data-sheet]");
     if(!el) return;
-    if(el.dataset.chunk!=null){ startChunkSession(parseInt(el.dataset.chunk,10)); return; }
-    if(el.dataset.speak){ speak(el.dataset.speak); if(!el.dataset.nav && !el.dataset.action && !el.dataset.learntab) return; }
+    if(el.dataset.sheet==="close"){ closeSheet(); return; }
+    if(el.dataset.kana){ openSheet(el.dataset.kanaset, el.dataset.kana); return; }
+    if(el.dataset.chunk!=null){ closeSheet(); startChunkSession(parseInt(el.dataset.chunk,10)); return; }
     if(el.dataset.choice!=null){ answerChoice(parseInt(el.dataset.choice,10)); return; }
+    if(el.dataset.speak){ speak(el.dataset.speak); if(!el.dataset.nav && !el.dataset.action) return; }
     if(el.dataset.persona){ switchPersona(el.dataset.persona); return; }
     if(el.dataset.learntab){ learnTab = el.dataset.learntab; view="learn"; render(); return; }
-    if(el.dataset.action==="start-daily"){ startSession("mixed", 10, "Daily Practice"); return; }
-    if(el.dataset.action==="start-lazy"){ startSession("mixed", 5, "Lazy Mode"); return; }
-    if(el.dataset.action==="practice-hiragana"){ startSession("hiragana", 10, "Hiragana"); return; }
-    if(el.dataset.action==="practice-katakana"){ startSession("katakana", 10, "Katakana"); return; }
-    if(el.dataset.action==="practice-vocab"){ startSession("vocab", 10, "Vocabulary"); return; }
-    if(el.dataset.action==="trace-hiragana"){ startTrace("hiragana"); return; }
-    if(el.dataset.action==="trace-katakana"){ startTrace("katakana"); return; }
-    if(el.dataset.action==="swipe-vocab"){ startSwipe(); return; }
-    if(el.dataset.nav){ setView(el.dataset.nav); return; }
+    var a = el.dataset.action;
+    if(a){
+      closeSheet();
+      if(a==="start-daily") startSession("mixed",10,"Daily Practice");
+      else if(a==="start-lazy") startSession("mixed",5,"Quick Practice");
+      else if(a==="practice-hiragana") startSession("hiragana",10,"Hiragana");
+      else if(a==="practice-katakana") startSession("katakana",10,"Katakana");
+      else if(a==="practice-vocab") startSession("vocab",10,"Vocabulary");
+      else if(a==="trace-hiragana") startTrace("hiragana");
+      else if(a==="trace-katakana") startTrace("katakana");
+      else if(a==="swipe-vocab") startSwipe();
+      return;
+    }
+    if(el.dataset.nav){ closeSheet(); setView(el.dataset.nav); return; }
   }
 
   function applyTheme(t){
@@ -1498,18 +1563,14 @@
     if(btn) btn.textContent = t==="dark" ? "🌙" : "☀️";
   }
   function initTheme(){
-    var saved = null;
+    var saved=null;
     try{ saved = localStorage.getItem("nihongo_theme"); }catch(e){}
     applyTheme(saved || "light");
-    var btn = document.getElementById("themeToggle");
-    if(btn){
-      btn.addEventListener("click", function(){
-        var current = document.documentElement.getAttribute("data-theme") || "light";
-        var next = current==="dark" ? "light" : "dark";
-        applyTheme(next);
-        try{ localStorage.setItem("nihongo_theme", next); }catch(e){}
-      });
-    }
+    document.getElementById("themeToggle").addEventListener("click", function(){
+      var next = (document.documentElement.getAttribute("data-theme")||"light")==="dark" ? "light" : "dark";
+      applyTheme(next);
+      try{ localStorage.setItem("nihongo_theme", next); }catch(e){}
+    });
   }
   initTheme();
 
